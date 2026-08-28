@@ -41,7 +41,20 @@ app.use(cookieSession({
 app.use(express.json());
 app.use(express.static('public'));
 
-// === SET COOKIE + LOG ===
+// === HEADER LENGKAP BIAR KAYAK BROWSER ===
+function getRobloxHeaders(cookie) {
+    return {
+        'Cookie': `.ROBLOSECURITY=${cookie}`,
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': '*/*',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Referer': 'https://www.roblox.com/',
+        'Origin': 'https://www.roblox.com',
+        'Connection': 'keep-alive'
+    };
+}
+
+// === SET COOKIE ===
 app.post('/set-cookie', async (req, res) => {
     const { cookie } = req.body;
     if (!cookie || !cookie.startsWith('_|WARNING')) {
@@ -58,7 +71,6 @@ app.post('/set-cookie', async (req, res) => {
     res.json({ success: true });
 });
 
-// === STATUS ===
 app.get('/status', (req, res) => {
     res.json({ hasCookie: !!req.session.robloxCookie });
 });
@@ -73,21 +85,22 @@ app.get('/test-cookie', async (req, res) => {
             method: 'get',
             url: 'https://assetdelivery.roblox.com/v1/asset/?id=9124851790',
             responseType: 'stream',
-            headers: { 'Cookie': `.ROBLOSECURITY=${cookie}`, 'User-Agent': 'Mozilla/5.0' },
+            headers: getRobloxHeaders(cookie),
             timeout: 15000,
             validateStatus: status => status < 500
         });
         if (response.status === 200) {
-            res.json({ valid: true, message: 'Cookie VALID — bisa akses public asset.' });
+            res.json({ valid: true, message: '✅ COOKIE VALID! Siap download.' });
+        } else if (response.status === 409) {
+            res.json({ valid: false, message: '❌ Cookie KONFLIK (409). Logout dari Roblox, login ulang, ambil cookie baru.' });
         } else {
-            res.json({ valid: false, message: `Cookie TIDAK VALID — HTTP ${response.status}` });
+            res.json({ valid: false, message: `❌ Cookie ditolak (HTTP ${response.status}).` });
         }
     } catch (error) {
-        res.json({ valid: false, message: `Error: ${error.message}` });
+        res.json({ valid: false, message: `❌ Error: ${error.message}` });
     }
 });
 
-// === LOGOUT ===
 app.get('/logout', (req, res) => {
     req.session = null;
     res.redirect('/');
@@ -105,11 +118,13 @@ app.get('/download/:id', async (req, res) => {
             method: 'get',
             url: `https://assetdelivery.roblox.com/v1/asset/?id=${id}`,
             responseType: 'stream',
-            headers: { 'Cookie': `.ROBLOSECURITY=${cookie}`, 'User-Agent': 'Mozilla/5.0' },
+            headers: getRobloxHeaders(cookie),
             timeout: 45000,
             validateStatus: status => status < 500
         });
+        if (response.status === 409) throw new Error('Cookie conflict. Logout & login ulang Roblox.');
         if (response.status !== 200) throw new Error(`HTTP ${response.status}`);
+        
         const contentType = response.headers['content-type'] || '';
         let ext = 'ogg';
         if (contentType.includes('mpeg') || contentType.includes('mp3')) ext = 'mp3';
@@ -143,7 +158,7 @@ app.post('/bulk', async (req, res) => {
                 method: 'get',
                 url: `https://assetdelivery.roblox.com/v1/asset/?id=${id}`,
                 responseType: 'stream',
-                headers: { 'Cookie': `.ROBLOSECURITY=${cookie}`, 'User-Agent': 'Mozilla/5.0' },
+                headers: getRobloxHeaders(cookie),
                 timeout: 45000,
                 validateStatus: status => status < 500
             });
