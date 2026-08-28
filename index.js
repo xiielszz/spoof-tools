@@ -1,47 +1,44 @@
 const express = require('express');
-const session = require('express-session');
+const cookieSession = require('cookie-session');
 const axios = require('axios');
 const archiver = require('archiver');
-const path = require('path');
 const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// === CONFIGURATION ===
 const CLIENT_ID = process.env.ROBLOX_CLIENT_ID;
 const CLIENT_SECRET = process.env.ROBLOX_CLIENT_SECRET;
 const REDIRECT_URI = 'https://spoof-tools-production.up.railway.app/oauth/callback';
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
-    console.error('❌ ERROR: ROBLOX_CLIENT_ID dan ROBLOX_CLIENT_SECRET wajib di-set di environment!');
+    console.error('❌ ERROR: ROBLOX_CLIENT_ID dan ROBLOX_CLIENT_SECRET wajib di-set!');
     process.exit(1);
 }
 
-// === SESSION (buat nyimpen state & access token sementara) ===
-app.use(session({
-    secret: crypto.randomBytes(32).toString('hex'),
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 600000 } // 10 menit
+// === SESSION PAKE COOKIE (stateless, aman di Railway multi-instance) ===
+app.use(cookieSession({
+    name: 'session',
+    secret: crypto.randomBytes(32).toString('hex'), // ganti pake secret tetap di production
+    maxAge: 10 * 60 * 1000, // 10 menit
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'lax'
 }));
 
 app.use(express.json());
 app.use(express.static('public'));
 
-// === HELPER: Dapetin OIDC Config dari Roblox ===
 async function getOidcConfig() {
     const response = await axios.get('https://apis.roblox.com/oauth/.well-known/openid-configuration');
     return response.data;
 }
 
-// === ROUTE 1: Login — redirect user ke Roblox ===
+// === ROUTE 1: Login ===
 app.get('/auth/login', async (req, res) => {
     const config = await getOidcConfig();
-    const authorizationUrl = config.authorization_endpoint; // https://apis.roblox.com/oauth/v1/authorize[reference:8]
-
     const state = crypto.randomBytes(32).toString('hex');
-    req.session.oauthState = state;
+    req.session.oauthState = state; // sekarang aman di cookie
 
     const params = new URLSearchParams({
         client_id: CLIENT_ID,
@@ -51,16 +48,15 @@ app.get('/auth/login', async (req, res) => {
         state: state
     });
 
-    res.redirect(`${authorizationUrl}?${params.toString()}`);
+    res.redirect(`${config.authorization_endpoint}?${params.toString()}`);
 });
 
-// === ROUTE 2: Callback — Roblox redirect balik ke sini ===
+// === ROUTE 2: Callback ===
 app.get('/oauth/callback', async (req, res) => {
     const { code, state } = req.query;
 
-    // Validasi state biar aman dari CSRF
     if (!state || state !== req.session.oauthState) {
-        return res.status(400).send('State mismatch — possible CSRF attack.');
+        return res.status(400).send('State mismatch — session cookie gak cocok. Coba login ulang.');
     }
 
     if (!code) {
@@ -69,10 +65,7 @@ app.get('/oauth/callback', async (req, res) => {
 
     try {
         const config = await getOidcConfig();
-        const tokenUrl = config.token_endpoint; // https://apis.roblox.com/oauth/v1/token
-
-        // Tukar code → access token
-        const tokenResponse = await axios.post(tokenUrl, new URLSearchParams({
+        const tokenResponse = await axios.post(config.token_endpoint, new URLSearchParams({
             client_id: CLIENT_ID,
             client_secret: CLIENT_SECRET,
             redirect_uri: REDIRECT_URI,
@@ -82,59 +75,52 @@ app.get('/oauth/callback', async (req, res) => {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
 
-        const accessToken = tokenResponse.data.access_token;
-
-        // Simpan token di session user
-        req.session.accessToken = accessToken;
-
-        // Redirect ke halaman utama (udah login)
+        req.session.accessToken = tokenResponse.data.access_token;
         res.redirect('/');
     } catch (error) {
-        console.error('OAuth callback error:', error.response?.data || error.message);
+        console.error('OAuth error:', error.response?.data || error.message);
         res.status(500).send(`Login gagal: ${error.response?.data?.error_description || error.message}`);
     }
 });
 
-// === ROUTE 3: Cek status login ===
+// === ROUTE 3: Cek status ===
 app.get('/auth/status', (req, res) => {
-    const isLoggedIn = !!req.session.accessToken;
-    res.json({ loggedIn: isLoggedIn });
+    res.json({ loggedIn: !!req.session.accessToken });
 });
 
 // === ROUTE 4: Logout ===
 app.get('/auth/logout', (req, res) => {
-    req.session.destroy();
+    req.session = null;
     res.redirect('/');
 });
 
-// === ROUTE 5: Download single asset (pake token user) ===
+// === ROUTE 5: Download single ===
 app.get('/download/:id', async (req, res) => {
     const id = req.params.id;
-    if (!/^\d+$/.test(id) || id.length < 1) {
+    if (!/^\d+$/.test(id)) {
         return res.status(400).send('ID tidak valid.');
     }
 
     const token = req.session.accessToken;
     if (!token) {
-        return res.status(401).send('Anda belum login. Klik "Login with Roblox" dulu.');
+        return res.status(401).send('Login dulu.');
     }
 
     try {
-        const url = `https://assetdelivery.roblox.com/v1/asset/?id=${id}`;
         const response = await axios({
             method: 'get',
-            url: url,
+            url: `https://assetdelivery.roblox.com/v1/asset/?id=${id}`,
             responseType: 'stream',
             headers: {
-                'Authorization': `Bearer ${token}`, // OAuth 2.0 authentication[reference:9]
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                'Authorization': `Bearer ${token}`,
+                'User-Agent': 'Mozilla/5.0'
             },
             timeout: 45000,
-            validateStatus: (status) => status < 500
+            validateStatus: status => status < 500
         });
 
         if (response.status !== 200) {
-            throw new Error(`Roblox return HTTP ${response.status} — mungkin asset private atau tidak ditemukan.`);
+            throw new Error(`Roblox return HTTP ${response.status}`);
         }
 
         const contentType = response.headers['content-type'] || '';
@@ -146,12 +132,11 @@ app.get('/download/:id', async (req, res) => {
         res.setHeader('Content-Type', contentType);
         response.data.pipe(res);
     } catch (error) {
-        console.error(`Error downloading ${id}:`, error.message);
-        res.status(500).send(`Gagal download ID ${id}: ${error.message}`);
+        res.status(500).send(`Gagal download: ${error.message}`);
     }
 });
 
-// === ROUTE 6: Bulk download ZIP (pake token user) ===
+// === ROUTE 6: Bulk ZIP ===
 app.post('/bulk', async (req, res) => {
     const ids = req.body.ids || [];
     if (!Array.isArray(ids) || ids.length === 0) {
@@ -165,7 +150,7 @@ app.post('/bulk', async (req, res) => {
 
     const token = req.session.accessToken;
     if (!token) {
-        return res.status(401).send('Anda belum login. Klik "Login with Roblox" dulu.');
+        return res.status(401).send('Login dulu.');
     }
 
     res.setHeader('Content-Type', 'application/zip');
@@ -176,17 +161,16 @@ app.post('/bulk', async (req, res) => {
 
     for (const id of validIds) {
         try {
-            const url = `https://assetdelivery.roblox.com/v1/asset/?id=${id}`;
             const response = await axios({
                 method: 'get',
-                url: url,
+                url: `https://assetdelivery.roblox.com/v1/asset/?id=${id}`,
                 responseType: 'stream',
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    'User-Agent': 'Mozilla/5.0'
                 },
                 timeout: 45000,
-                validateStatus: (status) => status < 500
+                validateStatus: status => status < 500
             });
 
             if (response.status !== 200) {
@@ -200,7 +184,6 @@ app.post('/bulk', async (req, res) => {
 
             archive.append(response.data, { name: `roblox_${id}.${ext}` });
         } catch (error) {
-            console.error(`Gagal ambil ID ${id}:`, error.message);
             archive.append(Buffer.from(`Error: ${error.message}`), { name: `error_${id}.txt` });
         }
     }
@@ -208,9 +191,7 @@ app.post('/bulk', async (req, res) => {
     archive.finalize();
 });
 
-// === Start server ===
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`🔐 Redirect URI: ${REDIRECT_URI}`);
-    console.log(`📌 Buka: http://localhost:${PORT}`);
 });
