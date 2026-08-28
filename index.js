@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 // === CONFIGURATION ===
 const CLIENT_ID = process.env.ROBLOX_CLIENT_ID;
 const CLIENT_SECRET = process.env.ROBLOX_CLIENT_SECRET;
-const REDIRECT_URI = process.env.ROBLOX_REDIRECT_URI || `http://localhost:${PORT}/oauth/callback`;
+const REDIRECT_URI = 'https://spoof-tools-production.up.railway.app/oauth/callback';
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
     console.error('❌ ERROR: ROBLOX_CLIENT_ID dan ROBLOX_CLIENT_SECRET wajib di-set di environment!');
