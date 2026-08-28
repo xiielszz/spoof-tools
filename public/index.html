@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Bulk Ripper v2 (CORS Proxy)</title>
+    <title>Bulk Spoofer - Railway</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -19,270 +19,192 @@
             background: #1a1f2b;
             border-radius: 28px;
             padding: 35px;
-            max-width: 760px;
+            max-width: 720px;
             width: 100%;
             box-shadow: 0 20px 40px rgba(0,0,0,0.7);
             border: 1px solid #2f3a4b;
         }
-        h1 {
-            color: #eef2f7;
-            font-weight: 500;
-            font-size: 26px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 6px;
-        }
+        h1 { color: #eef2f7; font-weight: 500; font-size: 26px; display: flex; gap: 12px; margin-bottom: 6px; }
         .sub {
-            color: #8896ab;
-            font-size: 14px;
-            border-left: 3px solid #f0b34b;
-            padding-left: 14px;
-            margin-bottom: 24px;
-            background: #252e3d;
-            border-radius: 0 12px 12px 0;
-            padding: 10px 16px;
+            color: #8896ab; font-size: 14px; border-left: 3px solid #f0b34b;
+            padding-left: 14px; margin-bottom: 24px; background: #252e3d;
+            border-radius: 0 12px 12px 0; padding: 10px 16px;
         }
-        .input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
-        .input-group textarea {
-            width: 100%;
-            padding: 14px 18px;
-            border-radius: 14px;
-            border: 1px solid #314159;
-            background: #0f141e;
-            color: #d6e0f0;
-            font-size: 15px;
-            outline: none;
-            resize: vertical;
-            min-height: 100px;
-            font-family: 'Courier New', monospace;
+        textarea {
+            width: 100%; padding: 14px; border-radius: 14px; border: 1px solid #314159;
+            background: #0f141e; color: #d6e0f0; font-size: 15px; min-height: 100px;
+            font-family: 'Courier New', monospace; resize: vertical;
         }
-        .input-group textarea:focus { border-color: #f0b34b; box-shadow: 0 0 0 3px rgba(240,179,75,0.15); }
+        textarea:focus { border-color: #f0b34b; box-shadow: 0 0 0 3px rgba(240,179,75,0.15); }
         .action-bar {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 18px;
+            display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0;
         }
         .action-bar button {
-            padding: 12px 22px;
-            border-radius: 40px;
-            border: none;
-            background: #2a3345;
-            color: #d6e0f0;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.15s;
-            flex: 1 1 auto;
+            padding: 12px 22px; border-radius: 40px; border: none;
+            background: #2a3345; color: #d6e0f0; font-weight: 600; cursor: pointer;
+            flex: 1 1 auto; transition: 0.15s;
         }
         .action-bar button:active { transform: scale(0.96); }
         .action-bar .primary { background: #f0b34b; color: #0b0e14; }
-        .action-bar .primary:hover { background: #ffc86b; box-shadow: 0 4px 14px rgba(240,179,75,0.3); }
+        .action-bar .primary:hover { background: #ffc86b; }
         .action-bar .dl-bulk { background: #4caf84; color: #0b0e14; }
         .action-bar .dl-bulk:hover { background: #5edb9f; }
-        .status-box {
-            background: #0f141e;
-            border-radius: 16px;
-            padding: 16px 20px;
-            color: #b3c2d9;
-            font-size: 14px;
-            min-height: 80px;
-            border: 1px dashed #2f3a4b;
-            font-family: 'Courier New', monospace;
-            word-break: break-word;
-            line-height: 1.7;
-            max-height: 220px;
-            overflow-y: auto;
-            margin-top: 10px;
+        #status {
+            background: #0f141e; border-radius: 16px; padding: 16px;
+            color: #b3c2d9; font-size: 14px; min-height: 70px;
+            border: 1px dashed #2f3a4b; font-family: monospace;
+            max-height: 180px; overflow-y: auto; line-height: 1.6;
         }
-        .status-box .entry { border-bottom: 1px solid #1f2836; padding: 4px 0; }
-        .status-box .success { color: #8bdfb0; }
-        .status-box .error { color: #f48b8b; }
-        .status-box .info { color: #f0b34b; }
-        .footnote {
-            color: #5a6a80;
-            font-size: 12px;
-            text-align: center;
-            margin-top: 20px;
-            border-top: 1px solid #1f2836;
-            padding-top: 16px;
-        }
-        .badge { display: inline-block; background: #2f3a4b; color: #f0b34b; padding: 2px 14px; border-radius: 40px; font-size: 12px; font-weight: 600; }
-        #progressBar { width: 100%; height: 6px; background: #1f2836; border-radius: 10px; margin: 12px 0 8px; overflow: hidden; }
+        .log-success { color: #8bdfb0; }
+        .log-error { color: #f48b8b; }
+        .log-info { color: #f0b34b; }
+        .footnote { color: #5a6a80; font-size: 12px; text-align: center; margin-top: 20px; border-top: 1px solid #1f2836; padding-top: 16px; }
+        .badge { background: #2f3a4b; color: #f0b34b; padding: 2px 14px; border-radius: 40px; font-size: 12px; font-weight: 600; }
+        #progress { width: 100%; height: 6px; background: #1f2836; border-radius: 10px; margin: 12px 0; overflow: hidden; }
         #progressFill { height: 100%; width: 0%; background: #f0b34b; border-radius: 10px; transition: width 0.3s; }
     </style>
 </head>
 <body>
 <div class="card">
-    <h1>📦 Bulk Ripper <span style="color:#f0b34b;">v2</span></h1>
-    <div class="sub">
-        <span class="badge">CORS PROXY</span> &nbsp; Auto fallback · Stable
-    </div>
+    <h1>📦 Bulk Spoofer <span style="color:#f0b34b;">Railway</span></h1>
+    <div class="sub"><span class="badge">SERVER PROXY</span> &nbsp; Download ZIP or single</div>
 
-    <div class="input-group">
-        <textarea id="bulkIds" placeholder="Paste ID, pisah koma / newline&#10;Contoh: 9124851790, 86279441558584">9124851790, 86279441558584</textarea>
-    </div>
+    <textarea id="idList" placeholder="Paste ID, pisah koma / newline&#10;Contoh: 9124851790, 71693666775697">9124851790, 71693666775697</textarea>
 
     <div class="action-bar">
-        <button class="dl-bulk" id="bulkDownloadBtn">⬇️ Bulk Download All</button>
-        <button class="primary" id="parseAndPreviewBtn">🔍 Test ID</button>
+        <button class="dl-bulk" id="bulkZipBtn">📦 Download ZIP (Bulk)</button>
+        <button class="primary" id="singleTestBtn">🔍 Test Single ID</button>
         <button id="clearBtn">🗑️ Clear</button>
     </div>
 
-    <div id="progressBar"><div id="progressFill"></div></div>
-    <div class="status-box" id="statusLog">
-        <div class="entry info">⏳ Siap. Proxy aktif: allorigins.win</div>
-    </div>
-    <div class="footnote">
-        Endpoint via proxy · Spoof UA · Delay 1.5s
-    </div>
+    <div id="progress"><div id="progressFill"></div></div>
+    <div id="status">⏳ Siap. Server aktif.</div>
+    <div class="footnote">Backend proxy di Railway · Bebas CORS</div>
 </div>
 
 <script>
-    (function() {
-        const bulkIds = document.getElementById('bulkIds');
-        const bulkDownloadBtn = document.getElementById('bulkDownloadBtn');
-        const parseAndPreviewBtn = document.getElementById('parseAndPreviewBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const statusLog = document.getElementById('statusLog');
-        const progressFill = document.getElementById('progressFill');
+    const idList = document.getElementById('idList');
+    const bulkZipBtn = document.getElementById('bulkZipBtn');
+    const singleTestBtn = document.getElementById('singleTestBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const statusDiv = document.getElementById('status');
+    const progressFill = document.getElementById('progressFill');
 
-        let isDownloading = false;
+    function log(msg, type = 'info') {
+        const entry = document.createElement('div');
+        entry.className = `log-${type}`;
+        entry.textContent = msg;
+        statusDiv.appendChild(entry);
+        statusDiv.scrollTop = statusDiv.scrollHeight;
+    }
 
-        function log(msg, type = 'info') {
-            const entry = document.createElement('div');
-            entry.className = `entry ${type}`;
-            entry.textContent = msg;
-            statusLog.appendChild(entry);
-            statusLog.scrollTop = statusLog.scrollHeight;
+    function clearLog() { statusDiv.innerHTML = ''; }
+
+    function parseIds(text) {
+        return text.split(/[\s,;\n]+/).map(s => s.trim()).filter(s => /^\d+$/.test(s));
+    }
+
+    function updateProgress(pct) {
+        progressFill.style.width = Math.min(pct, 100) + '%';
+    }
+
+    // --- Bulk ZIP ---
+    bulkZipBtn.addEventListener('click', async () => {
+        const ids = parseIds(idList.value);
+        if (ids.length === 0) {
+            log('⚠️ Gak ada ID valid.', 'error');
+            return;
         }
+        clearLog();
+        log(`🚀 Mengirim ${ids.length} ID ke server untuk dibuat ZIP...`, 'info');
+        updateProgress(10);
 
-        function clearLog() { statusLog.innerHTML = ''; }
+        try {
+            const response = await fetch('/bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids })
+            });
 
-        function parseIds(text) {
-            return text.split(/[\s,;\n]+/).map(s => s.trim()).filter(s => /^\d+$/.test(s));
-        }
-
-        function updateProgress(current, total) {
-            progressFill.style.width = total > 0 ? (current / total) * 100 + '%' : '0%';
-        }
-
-        function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-        // === FETCH dengan proxy fallback ===
-        async function fetchWithProxy(url, retries = 2) {
-            // coba langsung dulu (untuk berjaga-jaga kalau CORS diizinkan)
-            try {
-                const resp = await fetch(url, {
-                    headers: { 'User-Agent': 'Mozilla/5.0' },
-                    mode: 'cors'
-                });
-                if (resp.ok) return resp;
-                // kalau gagal (status 4xx/5xx) lempar untuk lanjut ke proxy
-                throw new Error(`HTTP ${resp.status}`);
-            } catch (e) {
-                // fallback ke proxy
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-                for (let attempt = 0; attempt < retries; attempt++) {
-                    try {
-                        const resp = await fetch(proxyUrl, {
-                            headers: { 'User-Agent': 'Mozilla/5.0' }
-                        });
-                        if (!resp.ok) throw new Error(`Proxy HTTP ${resp.status}`);
-                        // Proxy mengembalikan raw content, tapi kita perlu cek tipe konten?
-                        // Karena proxy allorigins mengembalikan binary sebagai base64? Sebenarnya allorigins.win/raw mengembalikan binary langsung.
-                        // Tapi perlu diingat: allorigins.win/raw mengembalikan response asli dengan header yang benar.
-                        return resp;
-                    } catch (proxyErr) {
-                        if (attempt === retries - 1) throw proxyErr;
-                        await delay(500);
-                    }
-                }
-                throw new Error('Semua proxy gagal');
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Server error: ${response.status} - ${errText}`);
             }
+
+            // Download ZIP
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `roblox_bulk_${Date.now()}.zip`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+            log(`✅ ZIP berhasil di-download (${(blob.size / 1024).toFixed(1)} KB)`, 'success');
+            updateProgress(100);
+        } catch (err) {
+            log(`❌ Gagal: ${err.message}`, 'error');
+            updateProgress(0);
         }
+    });
 
-        async function downloadSingle(assetId, index, total) {
-            const url = `https://assetdelivery.roblox.com/v1/asset/?id=${assetId}`;
-            log(`[${index+1}/${total}] Fetching ID ${assetId} ...`, 'info');
-            try {
-                const response = await fetchWithProxy(url);
-                const contentType = response.headers.get('content-type') || 'audio/ogg';
-                const arrayBuffer = await response.arrayBuffer();
-                const blob = new Blob([arrayBuffer], { type: contentType });
-                if (blob.size === 0) throw new Error('File kosong');
+    // --- Test Single ID (download langsung) ---
+    singleTestBtn.addEventListener('click', async () => {
+        const ids = parseIds(idList.value);
+        if (ids.length === 0) {
+            log('⚠️ Gak ada ID untuk di-test.', 'error');
+            return;
+        }
+        const id = ids[0];
+        clearLog();
+        log(`🔍 Menguji ID ${id}...`, 'info');
+        updateProgress(20);
 
-                let ext = 'ogg';
-                if (contentType.includes('mpeg') || contentType.includes('mp3')) ext = 'mp3';
-                else if (contentType.includes('wav')) ext = 'wav';
-                else ext = 'ogg';
-
-                const fileName = `roblox_${assetId}.${ext}`;
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = fileName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                setTimeout(() => URL.revokeObjectURL(link.href), 5000);
-
-                log(`✅ ID ${assetId} berhasil (${(blob.size/1024).toFixed(1)} KB) → download terpicu`, 'success');
-                return true;
-            } catch (err) {
-                log(`❌ ID ${assetId} gagal: ${err.message}`, 'error');
-                return false;
+        try {
+            // Fetch langsung ke endpoint download server
+            const response = await fetch(`/download/${id}`);
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Server error: ${response.status} - ${errText}`);
             }
-        }
 
-        async function bulkDownload() {
-            if (isDownloading) { log('⏳ Proses berjalan, tunggu!', 'info'); return; }
-            const ids = parseIds(bulkIds.value);
-            if (ids.length === 0) { log('⚠️ Gak ada ID valid.', 'error'); return; }
-
-            isDownloading = true;
-            clearLog();
-            log(`🚀 Bulk ${ids.length} ID via proxy ...`, 'info');
-            updateProgress(0, ids.length);
-
-            let success = 0;
-            for (let i = 0; i < ids.length; i++) {
-                const ok = await downloadSingle(ids[i], i, ids.length);
-                if (ok) success++;
-                updateProgress(i + 1, ids.length);
-                if (i < ids.length - 1) await delay(1500);
+            // Trigger download
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            // ambil nama dari header content-disposition kalau ada
+            const disposition = response.headers.get('content-disposition');
+            let filename = `roblox_${id}.ogg`;
+            if (disposition && disposition.includes('filename=')) {
+                const match = disposition.match(/filename="(.+?)"/);
+                if (match) filename = match[1];
             }
-            log(`✅ Selesai. Berhasil: ${success}/${ids.length}`, 'success');
-            isDownloading = false;
-        }
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
 
-        async function previewFirst() {
-            const ids = parseIds(bulkIds.value);
-            if (ids.length === 0) { log('⚠️ Gak ada ID.', 'error'); return; }
-            const id = ids[0];
-            log(`🔍 Testing ID ${id} ...`, 'info');
-            try {
-                const url = `https://assetdelivery.roblox.com/v1/asset/?id=${id}`;
-                const resp = await fetchWithProxy(url);
-                const type = resp.headers.get('content-type') || 'unknown';
-                const length = resp.headers.get('content-length') || 'unknown';
-                log(`✅ ID ${id} valid. Type: ${type}, Size: ${length} bytes`, 'success');
-            } catch (e) {
-                log(`❌ ID ${id} tidak valid: ${e.message}`, 'error');
-            }
+            log(`✅ Download ID ${id} berhasil`, 'success');
+            updateProgress(100);
+        } catch (err) {
+            log(`❌ Gagal: ${err.message}`, 'error');
+            updateProgress(0);
         }
+    });
 
-        function clearAll() {
-            bulkIds.value = '';
-            clearLog();
-            log('🗑️ Direset.', 'info');
-            progressFill.style.width = '0%';
-        }
+    clearBtn.addEventListener('click', () => {
+        idList.value = '';
+        clearLog();
+        log('🗑️ Direset.', 'info');
+        updateProgress(0);
+    });
 
-        bulkDownloadBtn.addEventListener('click', bulkDownload);
-        parseAndPreviewBtn.addEventListener('click', previewFirst);
-        clearBtn.addEventListener('click', clearAll);
-        log('💡 Proxy aktif. Coba ID 86279441558584 sekarang.', 'info');
-    })();
+    // initial log
+    log('💡 Server siap. Pilih ZIP atau single download.', 'info');
 </script>
 </body>
 </html>
