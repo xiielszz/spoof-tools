@@ -3,16 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Audio Bulk Ripper ⚡</title>
+    <title>Roblox Bulk Ripper v2 (CORS Proxy)</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             background: #0b0e14;
-            font-family: 'Segoe UI', system-ui, monospace;
+            font-family: 'Segoe UI', monospace;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,7 +19,7 @@
             background: #1a1f2b;
             border-radius: 28px;
             padding: 35px;
-            max-width: 720px;
+            max-width: 760px;
             width: 100%;
             box-shadow: 0 20px 40px rgba(0,0,0,0.7);
             border: 1px solid #2f3a4b;
@@ -47,12 +43,7 @@
             border-radius: 0 12px 12px 0;
             padding: 10px 16px;
         }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
+        .input-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
         .input-group textarea {
             width: 100%;
             padding: 14px 18px;
@@ -65,12 +56,8 @@
             resize: vertical;
             min-height: 100px;
             font-family: 'Courier New', monospace;
-            transition: 0.2s;
         }
-        .input-group textarea:focus {
-            border-color: #f0b34b;
-            box-shadow: 0 0 0 3px rgba(240, 179, 75, 0.15);
-        }
+        .input-group textarea:focus { border-color: #f0b34b; box-shadow: 0 0 0 3px rgba(240,179,75,0.15); }
         .action-bar {
             display: flex;
             gap: 12px;
@@ -88,24 +75,11 @@
             transition: 0.15s;
             flex: 1 1 auto;
         }
-        .action-bar button:active {
-            transform: scale(0.96);
-        }
-        .action-bar .primary {
-            background: #f0b34b;
-            color: #0b0e14;
-        }
-        .action-bar .primary:hover {
-            background: #ffc86b;
-            box-shadow: 0 4px 14px rgba(240, 179, 75, 0.3);
-        }
-        .action-bar .dl-bulk {
-            background: #4caf84;
-            color: #0b0e14;
-        }
-        .action-bar .dl-bulk:hover {
-            background: #5edb9f;
-        }
+        .action-bar button:active { transform: scale(0.96); }
+        .action-bar .primary { background: #f0b34b; color: #0b0e14; }
+        .action-bar .primary:hover { background: #ffc86b; box-shadow: 0 4px 14px rgba(240,179,75,0.3); }
+        .action-bar .dl-bulk { background: #4caf84; color: #0b0e14; }
+        .action-bar .dl-bulk:hover { background: #5edb9f; }
         .status-box {
             background: #0f141e;
             border-radius: 16px;
@@ -117,14 +91,11 @@
             font-family: 'Courier New', monospace;
             word-break: break-word;
             line-height: 1.7;
-            max-height: 200px;
+            max-height: 220px;
             overflow-y: auto;
             margin-top: 10px;
         }
-        .status-box .entry {
-            border-bottom: 1px solid #1f2836;
-            padding: 4px 0;
-        }
+        .status-box .entry { border-bottom: 1px solid #1f2836; padding: 4px 0; }
         .status-box .success { color: #8bdfb0; }
         .status-box .error { color: #f48b8b; }
         .status-box .info { color: #f0b34b; }
@@ -136,57 +107,34 @@
             border-top: 1px solid #1f2836;
             padding-top: 16px;
         }
-        .badge {
-            display: inline-block;
-            background: #2f3a4b;
-            color: #f0b34b;
-            padding: 2px 14px;
-            border-radius: 40px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        #progressBar {
-            width: 100%;
-            height: 6px;
-            background: #1f2836;
-            border-radius: 10px;
-            margin: 12px 0 8px;
-            overflow: hidden;
-        }
-        #progressFill {
-            height: 100%;
-            width: 0%;
-            background: #f0b34b;
-            border-radius: 10px;
-            transition: width 0.3s;
-        }
+        .badge { display: inline-block; background: #2f3a4b; color: #f0b34b; padding: 2px 14px; border-radius: 40px; font-size: 12px; font-weight: 600; }
+        #progressBar { width: 100%; height: 6px; background: #1f2836; border-radius: 10px; margin: 12px 0 8px; overflow: hidden; }
+        #progressFill { height: 100%; width: 0%; background: #f0b34b; border-radius: 10px; transition: width 0.3s; }
     </style>
 </head>
 <body>
 <div class="card">
-    <h1>📦 Bulk Audio <span style="color:#f0b34b;">Ripper</span></h1>
+    <h1>📦 Bulk Ripper <span style="color:#f0b34b;">v2</span></h1>
     <div class="sub">
-        <span class="badge">BULK SPOOF</span> &nbsp; Paste banyak ID, download semua otomatis
+        <span class="badge">CORS PROXY</span> &nbsp; Auto fallback · Stable
     </div>
 
     <div class="input-group">
-        <textarea id="bulkIds" placeholder="Masukkan Asset ID, pisahkan dengan koma, spasi, atau newline&#10;Contoh: 9124851790, 1234567890, 9876543210">9124851790, 1234567890</textarea>
+        <textarea id="bulkIds" placeholder="Paste ID, pisah koma / newline&#10;Contoh: 9124851790, 86279441558584">9124851790, 86279441558584</textarea>
     </div>
 
     <div class="action-bar">
         <button class="dl-bulk" id="bulkDownloadBtn">⬇️ Bulk Download All</button>
-        <button class="primary" id="parseAndPreviewBtn">🔍 Parse & Preview Satu</button>
+        <button class="primary" id="parseAndPreviewBtn">🔍 Test ID</button>
         <button id="clearBtn">🗑️ Clear</button>
     </div>
 
     <div id="progressBar"><div id="progressFill"></div></div>
-
     <div class="status-box" id="statusLog">
-        <div class="entry info">⏳ Siap. Tempel ID & klik Bulk Download.</div>
+        <div class="entry info">⏳ Siap. Proxy aktif: allorigins.win</div>
     </div>
-
     <div class="footnote">
-        Endpoint: assetdelivery.roblox.com · Spoof User-Agent · Delay antar download 1.5 detik
+        Endpoint via proxy · Spoof UA · Delay 1.5s
     </div>
 </div>
 
@@ -209,41 +157,60 @@
             statusLog.scrollTop = statusLog.scrollHeight;
         }
 
-        function clearLog() {
-            statusLog.innerHTML = '';
-        }
+        function clearLog() { statusLog.innerHTML = ''; }
 
         function parseIds(text) {
-            // split by comma, newline, or space, trim, filter empty, keep numbers
-            const raw = text.split(/[\s,;\n]+/).map(s => s.trim()).filter(s => s !== '');
-            return raw.filter(s => /^\d+$/.test(s));
+            return text.split(/[\s,;\n]+/).map(s => s.trim()).filter(s => /^\d+$/.test(s));
         }
 
         function updateProgress(current, total) {
-            const pct = total > 0 ? (current / total) * 100 : 0;
-            progressFill.style.width = pct + '%';
+            progressFill.style.width = total > 0 ? (current / total) * 100 + '%' : '0%';
         }
 
-        function delay(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
+        function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+        // === FETCH dengan proxy fallback ===
+        async function fetchWithProxy(url, retries = 2) {
+            // coba langsung dulu (untuk berjaga-jaga kalau CORS diizinkan)
+            try {
+                const resp = await fetch(url, {
+                    headers: { 'User-Agent': 'Mozilla/5.0' },
+                    mode: 'cors'
+                });
+                if (resp.ok) return resp;
+                // kalau gagal (status 4xx/5xx) lempar untuk lanjut ke proxy
+                throw new Error(`HTTP ${resp.status}`);
+            } catch (e) {
+                // fallback ke proxy
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                for (let attempt = 0; attempt < retries; attempt++) {
+                    try {
+                        const resp = await fetch(proxyUrl, {
+                            headers: { 'User-Agent': 'Mozilla/5.0' }
+                        });
+                        if (!resp.ok) throw new Error(`Proxy HTTP ${resp.status}`);
+                        // Proxy mengembalikan raw content, tapi kita perlu cek tipe konten?
+                        // Karena proxy allorigins mengembalikan binary sebagai base64? Sebenarnya allorigins.win/raw mengembalikan binary langsung.
+                        // Tapi perlu diingat: allorigins.win/raw mengembalikan response asli dengan header yang benar.
+                        return resp;
+                    } catch (proxyErr) {
+                        if (attempt === retries - 1) throw proxyErr;
+                        await delay(500);
+                    }
+                }
+                throw new Error('Semua proxy gagal');
+            }
         }
 
         async function downloadSingle(assetId, index, total) {
             const url = `https://assetdelivery.roblox.com/v1/asset/?id=${assetId}`;
             log(`[${index+1}/${total}] Fetching ID ${assetId} ...`, 'info');
             try {
-                const response = await fetch(url, {
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                    }
-                });
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
+                const response = await fetchWithProxy(url);
                 const contentType = response.headers.get('content-type') || 'audio/ogg';
                 const arrayBuffer = await response.arrayBuffer();
                 const blob = new Blob([arrayBuffer], { type: contentType });
-                if (blob.size === 0) throw new Error('File kosong (0 bytes)');
+                if (blob.size === 0) throw new Error('File kosong');
 
                 let ext = 'ogg';
                 if (contentType.includes('mpeg') || contentType.includes('mp3')) ext = 'mp3';
@@ -257,7 +224,6 @@
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                // revoke after a moment
                 setTimeout(() => URL.revokeObjectURL(link.href), 5000);
 
                 log(`✅ ID ${assetId} berhasil (${(blob.size/1024).toFixed(1)} KB) → download terpicu`, 'success');
@@ -269,79 +235,53 @@
         }
 
         async function bulkDownload() {
-            if (isDownloading) {
-                log('⏳ Proses sedang berjalan, tunggu!', 'info');
-                return;
-            }
-
-            const text = bulkIds.value;
-            const ids = parseIds(text);
-            if (ids.length === 0) {
-                log('⚠️ Gak ada ID valid. Masukkan angka!', 'error');
-                return;
-            }
+            if (isDownloading) { log('⏳ Proses berjalan, tunggu!', 'info'); return; }
+            const ids = parseIds(bulkIds.value);
+            if (ids.length === 0) { log('⚠️ Gak ada ID valid.', 'error'); return; }
 
             isDownloading = true;
             clearLog();
-            log(`🚀 Memulai bulk download untuk ${ids.length} ID ...`, 'info');
+            log(`🚀 Bulk ${ids.length} ID via proxy ...`, 'info');
             updateProgress(0, ids.length);
 
-            let successCount = 0;
+            let success = 0;
             for (let i = 0; i < ids.length; i++) {
-                const id = ids[i];
-                const ok = await downloadSingle(id, i, ids.length);
-                if (ok) successCount++;
+                const ok = await downloadSingle(ids[i], i, ids.length);
+                if (ok) success++;
                 updateProgress(i + 1, ids.length);
-                // delay antar download biar gak kena ban
                 if (i < ids.length - 1) await delay(1500);
             }
-
-            log(`✅ Selesai! Berhasil: ${successCount}/${ids.length}`, 'success');
+            log(`✅ Selesai. Berhasil: ${success}/${ids.length}`, 'success');
             isDownloading = false;
         }
 
-        // Preview single: ambil ID pertama, fetch, dan tampilkan di audio (opsional) — kita sederhanakan: log info
         async function previewFirst() {
-            const text = bulkIds.value;
-            const ids = parseIds(text);
-            if (ids.length === 0) {
-                log('⚠️ Gak ada ID valid untuk preview.', 'error');
-                return;
-            }
+            const ids = parseIds(bulkIds.value);
+            if (ids.length === 0) { log('⚠️ Gak ada ID.', 'error'); return; }
             const id = ids[0];
-            log(`🔍 Preview ID ${id} — fetch ke CDN (cek validitas) ...`, 'info');
+            log(`🔍 Testing ID ${id} ...`, 'info');
             try {
                 const url = `https://assetdelivery.roblox.com/v1/asset/?id=${id}`;
-                const resp = await fetch(url, {
-                    headers: { 'User-Agent': 'Mozilla/5.0' },
-                    method: 'HEAD' // cukup cek header
-                });
-                if (resp.ok) {
-                    const type = resp.headers.get('content-type') || 'unknown';
-                    const length = resp.headers.get('content-length') || 'unknown';
-                    log(`✅ ID ${id} valid. Type: ${type}, Size: ${length} bytes`, 'success');
-                } else {
-                    log(`❌ ID ${id} tidak valid (${resp.status})`, 'error');
-                }
+                const resp = await fetchWithProxy(url);
+                const type = resp.headers.get('content-type') || 'unknown';
+                const length = resp.headers.get('content-length') || 'unknown';
+                log(`✅ ID ${id} valid. Type: ${type}, Size: ${length} bytes`, 'success');
             } catch (e) {
-                log(`❌ Gagal preview: ${e.message}`, 'error');
+                log(`❌ ID ${id} tidak valid: ${e.message}`, 'error');
             }
         }
 
         function clearAll() {
             bulkIds.value = '';
             clearLog();
-            log('🗑️ Direset. Tempel ID baru.', 'info');
+            log('🗑️ Direset.', 'info');
             progressFill.style.width = '0%';
         }
 
-        // Event binding
         bulkDownloadBtn.addEventListener('click', bulkDownload);
         parseAndPreviewBtn.addEventListener('click', previewFirst);
         clearBtn.addEventListener('click', clearAll);
-
-        // initial log
-        log('💡 Tempel daftar ID (pisah koma/newline) lalu klik Bulk Download.', 'info');
+        log('💡 Proxy aktif. Coba ID 86279441558584 sekarang.', 'info');
     })();
 </script>
 </body>
