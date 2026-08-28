@@ -1,14 +1,15 @@
 {
-  "name": "bulk-spoofer-railway",
-  "version": "1.0.0",
-  "description": "Roblox audio bulk downloader with backend proxy",
+  "name": "bulk-spoofer-oauth",
+  "version": "2.0.0",
+  "description": "Roblox bulk audio downloader with OAuth 2.0",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
     "express": "^4.18.2",
+    "axios": "^1.6.0",
     "archiver": "^5.3.1",
-    "axios": "^1.6.0"
+    "express-session": "^1.18.0"
   }
 }
