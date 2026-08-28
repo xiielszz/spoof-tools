@@ -1,9 +1,7 @@
 {
-  "name": "bulk-spoofer-oauth",
-  "version": "2.1.0",
-  "scripts": {
-    "start": "node index.js"
-  },
+  "name": "bulk-spoofer-cookie",
+  "version": "3.0.0",
+  "scripts": { "start": "node index.js" },
   "dependencies": {
     "express": "^4.18.2",
     "axios": "^1.6.0",
