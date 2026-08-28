@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Audio Bulk Ripper ⚡</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: #0b0e14;
+            font-family: 'Segoe UI', system-ui, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .card {
+            background: #1a1f2b;
+            border-radius: 28px;
+            padding: 35px;
+            max-width: 720px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+            border: 1px solid #2f3a4b;
+        }
+        h1 {
+            color: #eef2f7;
+            font-weight: 500;
+            font-size: 26px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+        .sub {
+            color: #8896ab;
+            font-size: 14px;
+            border-left: 3px solid #f0b34b;
+            padding-left: 14px;
+            margin-bottom: 24px;
+            background: #252e3d;
+            border-radius: 0 12px 12px 0;
+            padding: 10px 16px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .input-group textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: 1px solid #314159;
+            background: #0f141e;
+            color: #d6e0f0;
+            font-size: 15px;
+            outline: none;
+            resize: vertical;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+            transition: 0.2s;
+        }
+        .input-group textarea:focus {
+            border-color: #f0b34b;
+            box-shadow: 0 0 0 3px rgba(240, 179, 75, 0.15);
+        }
+        .action-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+        .action-bar button {
+            padding: 12px 22px;
+            border-radius: 40px;
+            border: none;
+            background: #2a3345;
+            color: #d6e0f0;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.15s;
+            flex: 1 1 auto;
+        }
+        .action-bar button:active {
+            transform: scale(0.96);
+        }
+        .action-bar .primary {
+            background: #f0b34b;
+            color: #0b0e14;
+        }
+        .action-bar .primary:hover {
+            background: #ffc86b;
+            box-shadow: 0 4px 14px rgba(240, 179, 75, 0.3);
+        }
+        .action-bar .dl-bulk {
+            background: #4caf84;
+            color: #0b0e14;
+        }
+        .action-bar .dl-bulk:hover {
+            background: #5edb9f;
+        }
+        .status-box {
+            background: #0f141e;
+            border-radius: 16px;
+            padding: 16px 20px;
+            color: #b3c2d9;
+            font-size: 14px;
+            min-height: 80px;
+            border: 1px dashed #2f3a4b;
+            font-family: 'Courier New', monospace;
+            word-break: break-word;
+            line-height: 1.7;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .status-box .entry {
+            border-bottom: 1px solid #1f2836;
+            padding: 4px 0;
+        }
+        .status-box .success { color: #8bdfb0; }
+        .status-box .error { color: #f48b8b; }
+        .status-box .info { color: #f0b34b; }
+        .footnote {
+            color: #5a6a80;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 20px;
+            border-top: 1px solid #1f2836;
+            padding-top: 16px;
+        }
+        .badge {
+            display: inline-block;
+            background: #2f3a4b;
+            color: #f0b34b;
+            padding: 2px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        #progressBar {
+            width: 100%;
+            height: 6px;
+            background: #1f2836;
+            border-radius: 10px;
+            margin: 12px 0 8px;
+            overflow: hidden;
+        }
+        #progressFill {
+            height: 100%;
+            width: 0%;
+            background: #f0b34b;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>📦 Bulk Audio <span style="color:#f0b34b;">Ripper</span></h1>
+    <div class="sub">
+        <span class="badge">BULK SPOOF</span> &nbsp; Paste banyak ID, download semua otomatis
+    </div>
+
+    <div class="input-group">
+        <textarea id="bulkIds" placeholder="Masukkan Asset ID, pisahkan dengan koma, spasi, atau newline&#10;Contoh: 9124851790, 1234567890, 9876543210">9124851790, 1234567890</textarea>
+    </div>
+
+    <div class="action-bar">
+        <button class="dl-bulk" id="bulkDownloadBtn">⬇️ Bulk Download All</button>
+        <button class="primary" id="parseAndPreviewBtn">🔍 Parse & Preview Satu</button>
+        <button id="clearBtn">🗑️ Clear</button>
+    </div>
+
+    <div id="progressBar"><div id="progressFill"></div></div>
+
+    <div class="status-box" id="statusLog">
+        <div class="entry info">⏳ Siap. Tempel ID & klik Bulk Download.</div>
+    </div>
+
+    <div class="footnote">
+        Endpoint: assetdelivery.roblox.com · Spoof User-Agent · Delay antar download 1.5 detik
+    </div>
+</div>
+
+<script>
+    (function() {
+        const bulkIds = document.getElementById('bulkIds');
+        const bulkDownloadBtn = document.getElementById('bulkDownloadBtn');
+        const parseAndPreviewBtn = document.getElementById('parseAndPreviewBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const statusLog = document.getElementById('statusLog');
+        const progressFill = document.getElementById('progressFill');
+
+        let isDownloading = false;
+
+        function log(msg, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `entry ${type}`;
+            entry.textContent = msg;
+            statusLog.appendChild(entry);
+            statusLog.scrollTop = statusLog.scrollHeight;
+        }
+
+        function clearLog() {
+            statusLog.innerHTML = '';
+        }
+
+        function parseIds(text) {
+            // split by comma, newline, or space, trim, filter empty, keep numbers
+            const raw = text.split(/[\s,;\n]+/).map(s => s.trim()).filter(s => s !== '');
+            return raw.filter(s => /^\d+$/.test(s));
+        }
+
+        function updateProgress(current, total) {
+            const pct = total > 0 ? (current / total) * 100 : 0;
+            progressFill.style.width = pct + '%';
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function downloadSingle(assetId, index, total) {
+            const url = `https://assetdelivery.roblox.com/v1/asset/?id=${assetId}`;
+            log(`[${index+1}/${total}] Fetching ID ${assetId} ...`, 'info');
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const contentType = response.headers.get('content-type') || 'audio/ogg';
+                const arrayBuffer = await response.arrayBuffer();
+                const blob = new Blob([arrayBuffer], { type: contentType });
+                if (blob.size === 0) throw new Error('File kosong (0 bytes)');
+
+                let ext = 'ogg';
+                if (contentType.includes('mpeg') || contentType.includes('mp3')) ext = 'mp3';
+                else if (contentType.includes('wav')) ext = 'wav';
+                else ext = 'ogg';
+
+                const fileName = `roblox_${assetId}.${ext}`;
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                // revoke after a moment
+                setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+
+                log(`✅ ID ${assetId} berhasil (${(blob.size/1024).toFixed(1)} KB) → download terpicu`, 'success');
+                return true;
+            } catch (err) {
+                log(`❌ ID ${assetId} gagal: ${err.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function bulkDownload() {
+            if (isDownloading) {
+                log('⏳ Proses sedang berjalan, tunggu!', 'info');
+                return;
+            }
+
+            const text = bulkIds.value;
+            const ids = parseIds(text);
+            if (ids.length === 0) {
+                log('⚠️ Gak ada ID valid. Masukkan angka!', 'error');
+                return;
+            }
+
+            isDownloading = true;
+            clearLog();
+            log(`🚀 Memulai bulk download untuk ${ids.length} ID ...`, 'info');
+            updateProgress(0, ids.length);
+
+            let successCount = 0;
+            for (let i = 0; i < ids.length; i++) {
+                const id = ids[i];
+                const ok = await downloadSingle(id, i, ids.length);
+                if (ok) successCount++;
+                updateProgress(i + 1, ids.length);
+                // delay antar download biar gak kena ban
+                if (i < ids.length - 1) await delay(1500);
+            }
+
+            log(`✅ Selesai! Berhasil: ${successCount}/${ids.length}`, 'success');
+            isDownloading = false;
+        }
+
+        // Preview single: ambil ID pertama, fetch, dan tampilkan di audio (opsional) — kita sederhanakan: log info
+        async function previewFirst() {
+            const text = bulkIds.value;
+            const ids = parseIds(text);
+            if (ids.length === 0) {
+                log('⚠️ Gak ada ID valid untuk preview.', 'error');
+                return;
+            }
+            const id = ids[0];
+            log(`🔍 Preview ID ${id} — fetch ke CDN (cek validitas) ...`, 'info');
+            try {
+                const url = `https://assetdelivery.roblox.com/v1/asset/?id=${id}`;
+                const resp = await fetch(url, {
+                    headers: { 'User-Agent': 'Mozilla/5.0' },
+                    method: 'HEAD' // cukup cek header
+                });
+                if (resp.ok) {
+                    const type = resp.headers.get('content-type') || 'unknown';
+                    const length = resp.headers.get('content-length') || 'unknown';
+                    log(`✅ ID ${id} valid. Type: ${type}, Size: ${length} bytes`, 'success');
+                } else {
+                    log(`❌ ID ${id} tidak valid (${resp.status})`, 'error');
+                }
+            } catch (e) {
+                log(`❌ Gagal preview: ${e.message}`, 'error');
+            }
+        }
+
+        function clearAll() {
+            bulkIds.value = '';
+            clearLog();
+            log('🗑️ Direset. Tempel ID baru.', 'info');
+            progressFill.style.width = '0%';
+        }
+
+        // Event binding
+        bulkDownloadBtn.addEventListener('click', bulkDownload);
+        parseAndPreviewBtn.addEventListener('click', previewFirst);
+        clearBtn.addEventListener('click', clearAll);
+
+        // initial log
+        log('💡 Tempel daftar ID (pisah koma/newline) lalu klik Bulk Download.', 'info');
+    })();
+</script>
+</body>
+</html>
