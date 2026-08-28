@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulk Spoofer - Railway</title>
+    <title>Bulk Spoofer — OAuth 2.0</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -24,12 +24,51 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.7);
             border: 1px solid #2f3a4b;
         }
-        h1 { color: #eef2f7; font-weight: 500; font-size: 26px; display: flex; gap: 12px; margin-bottom: 6px; }
-        .sub {
-            color: #8896ab; font-size: 14px; border-left: 3px solid #f0b34b;
-            padding-left: 14px; margin-bottom: 24px; background: #252e3d;
-            border-radius: 0 12px 12px 0; padding: 10px 16px;
+        h1 {
+            color: #eef2f7;
+            font-weight: 500;
+            font-size: 26px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 6px;
         }
+        .sub {
+            color: #8896ab;
+            font-size: 14px;
+            border-left: 3px solid #f0b34b;
+            padding-left: 14px;
+            margin-bottom: 24px;
+            background: #252e3d;
+            border-radius: 0 12px 12px 0;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .sub .badge {
+            background: #2f3a4b;
+            color: #f0b34b;
+            padding: 2px 14px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .login-btn {
+            background: #4caf84;
+            color: #0b0e14;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .login-btn:hover { background: #5edb9f; transform: scale(1.02); }
+        .login-btn.logout { background: #f48b8b; }
+        .login-btn.logout:hover { background: #ff6b6b; }
         textarea {
             width: 100%; padding: 14px; border-radius: 14px; border: 1px solid #314159;
             background: #0f141e; color: #d6e0f0; font-size: 15px; min-height: 100px;
@@ -49,6 +88,7 @@
         .action-bar .primary:hover { background: #ffc86b; }
         .action-bar .dl-bulk { background: #4caf84; color: #0b0e14; }
         .action-bar .dl-bulk:hover { background: #5edb9f; }
+        .action-bar .disabled { opacity: 0.4; pointer-events: none; }
         #status {
             background: #0f141e; border-radius: 16px; padding: 16px;
             color: #b3c2d9; font-size: 14px; min-height: 70px;
@@ -58,18 +98,23 @@
         .log-success { color: #8bdfb0; }
         .log-error { color: #f48b8b; }
         .log-info { color: #f0b34b; }
-        .footnote { color: #5a6a80; font-size: 12px; text-align: center; margin-top: 20px; border-top: 1px solid #1f2836; padding-top: 16px; }
-        .badge { background: #2f3a4b; color: #f0b34b; padding: 2px 14px; border-radius: 40px; font-size: 12px; font-weight: 600; }
+        .footnote {
+            color: #5a6a80; font-size: 12px; text-align: center;
+            margin-top: 20px; border-top: 1px solid #1f2836; padding-top: 16px;
+        }
         #progress { width: 100%; height: 6px; background: #1f2836; border-radius: 10px; margin: 12px 0; overflow: hidden; }
         #progressFill { height: 100%; width: 0%; background: #f0b34b; border-radius: 10px; transition: width 0.3s; }
     </style>
 </head>
 <body>
 <div class="card">
-    <h1>📦 Bulk Spoofer <span style="color:#f0b34b;">Railway</span></h1>
-    <div class="sub"><span class="badge">SERVER PROXY</span> &nbsp; Download ZIP or single</div>
+    <h1>📦 Bulk Spoofer <span style="color:#f0b34b;">OAuth 2.0</span></h1>
+    <div class="sub">
+        <span class="badge">🔐 LOGIN DULU</span>
+        <button id="loginBtn" class="login-btn">🔑 Login with Roblox</button>
+    </div>
 
-    <textarea id="idList" placeholder="Paste ID, pisah koma / newline&#10;Contoh: 9124851790, 71693666775697">9124851790, 71693666775697</textarea>
+    <textarea id="idList" placeholder="Paste ID, pisah koma / newline&#10;Contoh: 9124851790, 70988430076764">9124851790, 70988430076764</textarea>
 
     <div class="action-bar">
         <button class="dl-bulk" id="bulkZipBtn">📦 Download ZIP (Bulk)</button>
@@ -78,8 +123,8 @@
     </div>
 
     <div id="progress"><div id="progressFill"></div></div>
-    <div id="status">⏳ Siap. Server aktif.</div>
-    <div class="footnote">Backend proxy di Railway · Bebas CORS</div>
+    <div id="status">⏳ Siap. Login dulu pake tombol di atas.</div>
+    <div class="footnote">OAuth 2.0 — token disimpan di session lo, gak pernah nyimpen password.</div>
 </div>
 
 <script>
@@ -87,8 +132,11 @@
     const bulkZipBtn = document.getElementById('bulkZipBtn');
     const singleTestBtn = document.getElementById('singleTestBtn');
     const clearBtn = document.getElementById('clearBtn');
+    const loginBtn = document.getElementById('loginBtn');
     const statusDiv = document.getElementById('status');
     const progressFill = document.getElementById('progressFill');
+
+    let isLoggedIn = false;
 
     function log(msg, type = 'info') {
         const entry = document.createElement('div');
@@ -108,15 +156,60 @@
         progressFill.style.width = Math.min(pct, 100) + '%';
     }
 
-    // --- Bulk ZIP ---
+    function setButtonsEnabled(enabled) {
+        if (enabled && isLoggedIn) {
+            bulkZipBtn.classList.remove('disabled');
+            singleTestBtn.classList.remove('disabled');
+        } else {
+            bulkZipBtn.classList.add('disabled');
+            singleTestBtn.classList.add('disabled');
+        }
+    }
+
+    // === Cek status login ===
+    async function checkLoginStatus() {
+        try {
+            const res = await fetch('/auth/status');
+            const data = await res.json();
+            isLoggedIn = data.loggedIn;
+            if (isLoggedIn) {
+                loginBtn.textContent = '🚪 Logout';
+                loginBtn.className = 'login-btn logout';
+                log('✅ Login berhasil! Token aktif.', 'success');
+            } else {
+                loginBtn.textContent = '🔑 Login with Roblox';
+                loginBtn.className = 'login-btn';
+                log('⏳ Belum login. Klik tombol di atas.', 'info');
+            }
+            setButtonsEnabled(true);
+        } catch (e) {
+            log('❌ Gagal cek status login.', 'error');
+        }
+    }
+
+    // === Login / Logout ===
+    loginBtn.addEventListener('click', () => {
+        if (isLoggedIn) {
+            // Logout
+            window.location.href = '/auth/logout';
+        } else {
+            window.location.href = '/auth/login';
+        }
+    });
+
+    // === Bulk ZIP ===
     bulkZipBtn.addEventListener('click', async () => {
+        if (!isLoggedIn) {
+            log('⚠️ Login dulu pake tombol di atas!', 'error');
+            return;
+        }
         const ids = parseIds(idList.value);
         if (ids.length === 0) {
             log('⚠️ Gak ada ID valid.', 'error');
             return;
         }
         clearLog();
-        log(`🚀 Mengirim ${ids.length} ID ke server untuk dibuat ZIP...`, 'info');
+        log(`🚀 Mengirim ${ids.length} ID ke server...`, 'info');
         updateProgress(10);
 
         try {
@@ -131,7 +224,6 @@
                 throw new Error(`Server error: ${response.status} - ${errText}`);
             }
 
-            // Download ZIP
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -150,8 +242,12 @@
         }
     });
 
-    // --- Test Single ID (download langsung) ---
+    // === Test Single ID ===
     singleTestBtn.addEventListener('click', async () => {
+        if (!isLoggedIn) {
+            log('⚠️ Login dulu pake tombol di atas!', 'error');
+            return;
+        }
         const ids = parseIds(idList.value);
         if (ids.length === 0) {
             log('⚠️ Gak ada ID untuk di-test.', 'error');
@@ -163,19 +259,16 @@
         updateProgress(20);
 
         try {
-            // Fetch langsung ke endpoint download server
             const response = await fetch(`/download/${id}`);
             if (!response.ok) {
                 const errText = await response.text();
                 throw new Error(`Server error: ${response.status} - ${errText}`);
             }
 
-            // Trigger download
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            // ambil nama dari header content-disposition kalau ada
             const disposition = response.headers.get('content-disposition');
             let filename = `roblox_${id}.ogg`;
             if (disposition && disposition.includes('filename=')) {
@@ -203,8 +296,8 @@
         updateProgress(0);
     });
 
-    // initial log
-    log('💡 Server siap. Pilih ZIP atau single download.', 'info');
+    // === Init ===
+    checkLoginStatus();
 </script>
 </body>
 </html>
