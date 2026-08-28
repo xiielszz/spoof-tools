@@ -7,19 +7,27 @@ const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// === PERCAYA PROXY (Railway pake load balancer) ===
+app.set('trust proxy', 1);
+
 const CLIENT_ID = process.env.ROBLOX_CLIENT_ID;
 const CLIENT_SECRET = process.env.ROBLOX_CLIENT_SECRET;
 const REDIRECT_URI = 'https://spoof-tools-production.up.railway.app/oauth/callback';
+const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
     console.error('❌ ERROR: ROBLOX_CLIENT_ID dan ROBLOX_CLIENT_SECRET wajib di-set!');
     process.exit(1);
 }
 
-// === SESSION PAKE COOKIE (stateless, aman di Railway multi-instance) ===
+if (!process.env.SESSION_SECRET) {
+    console.warn('⚠️ SESSION_SECRET tidak di-set, pake random (akan error kalo server restart)');
+}
+
+// === SESSION PAKE COOKIE dengan SECRET STATIS ===
 app.use(cookieSession({
     name: 'session',
-    secret: crypto.randomBytes(32).toString('hex'), // ganti pake secret tetap di production
+    secret: SESSION_SECRET, // <- SEKARANG STATIS
     maxAge: 10 * 60 * 1000, // 10 menit
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
@@ -38,7 +46,8 @@ async function getOidcConfig() {
 app.get('/auth/login', async (req, res) => {
     const config = await getOidcConfig();
     const state = crypto.randomBytes(32).toString('hex');
-    req.session.oauthState = state; // sekarang aman di cookie
+    req.session.oauthState = state;
+    console.log(`[LOGIN] State generated: ${state}`); // buat debugging
 
     const params = new URLSearchParams({
         client_id: CLIENT_ID,
@@ -54,9 +63,14 @@ app.get('/auth/login', async (req, res) => {
 // === ROUTE 2: Callback ===
 app.get('/oauth/callback', async (req, res) => {
     const { code, state } = req.query;
+    const sessionState = req.session.oauthState;
 
-    if (!state || state !== req.session.oauthState) {
-        return res.status(400).send('State mismatch — session cookie gak cocok. Coba login ulang.');
+    console.log(`[CALLBACK] State from query: ${state}`);
+    console.log(`[CALLBACK] State from session: ${sessionState}`);
+
+    if (!state || !sessionState || state !== sessionState) {
+        // Redirect balik ke login otomatis biar user gak bingung
+        return res.redirect('/auth/login?error=session_expired');
     }
 
     if (!code) {
@@ -76,6 +90,7 @@ app.get('/oauth/callback', async (req, res) => {
         });
 
         req.session.accessToken = tokenResponse.data.access_token;
+        req.session.oauthState = null; // bersihin state setelah dipake
         res.redirect('/');
     } catch (error) {
         console.error('OAuth error:', error.response?.data || error.message);
@@ -83,7 +98,7 @@ app.get('/oauth/callback', async (req, res) => {
     }
 });
 
-// === ROUTE 3: Cek status ===
+// === ROUTE 3: Status ===
 app.get('/auth/status', (req, res) => {
     res.json({ loggedIn: !!req.session.accessToken });
 });
@@ -194,4 +209,5 @@ app.post('/bulk', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`🔐 Redirect URI: ${REDIRECT_URI}`);
+    console.log(`🔑 Session secret: ${SESSION_SECRET ? 'SET' : 'RANDOM (TIDAK AMAN)'}`);
 });
