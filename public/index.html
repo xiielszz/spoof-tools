@@ -3,115 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulk Spoofer — OAuth 2.0</title>
+    <title>Bulk Spoofer — Cookie Mode</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background: #0b0e14;
-            font-family: 'Segoe UI', monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .card {
-            background: #1a1f2b;
-            border-radius: 28px;
-            padding: 35px;
-            max-width: 720px;
-            width: 100%;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.7);
-            border: 1px solid #2f3a4b;
-        }
-        h1 {
-            color: #eef2f7;
-            font-weight: 500;
-            font-size: 26px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 6px;
-        }
-        .sub {
-            color: #8896ab;
-            font-size: 14px;
-            border-left: 3px solid #f0b34b;
-            padding-left: 14px;
-            margin-bottom: 24px;
-            background: #252e3d;
-            border-radius: 0 12px 12px 0;
-            padding: 10px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .sub .badge {
-            background: #2f3a4b;
-            color: #f0b34b;
-            padding: 2px 14px;
-            border-radius: 40px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .login-btn {
-            background: #4caf84;
-            color: #0b0e14;
-            border: none;
-            padding: 8px 24px;
-            border-radius: 40px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.2s;
-        }
-        .login-btn:hover { background: #5edb9f; transform: scale(1.02); }
-        .login-btn.logout { background: #f48b8b; }
-        .login-btn.logout:hover { background: #ff6b6b; }
-        textarea {
-            width: 100%; padding: 14px; border-radius: 14px; border: 1px solid #314159;
-            background: #0f141e; color: #d6e0f0; font-size: 15px; min-height: 100px;
-            font-family: 'Courier New', monospace; resize: vertical;
-        }
-        textarea:focus { border-color: #f0b34b; box-shadow: 0 0 0 3px rgba(240,179,75,0.15); }
-        .action-bar {
-            display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0;
-        }
-        .action-bar button {
-            padding: 12px 22px; border-radius: 40px; border: none;
-            background: #2a3345; color: #d6e0f0; font-weight: 600; cursor: pointer;
-            flex: 1 1 auto; transition: 0.15s;
-        }
+        body { background: #0b0e14; font-family: 'Segoe UI', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .card { background: #1a1f2b; border-radius: 28px; padding: 35px; max-width: 720px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.7); border: 1px solid #2f3a4b; }
+        h1 { color: #eef2f7; font-weight: 500; font-size: 26px; display: flex; gap: 12px; margin-bottom: 6px; }
+        .sub { color: #8896ab; font-size: 14px; border-left: 3px solid #f0b34b; padding-left: 14px; margin-bottom: 24px; background: #252e3d; border-radius: 0 12px 12px 0; padding: 10px 16px; display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; }
+        .badge { background: #2f3a4b; color: #f0b34b; padding: 2px 14px; border-radius: 40px; font-size: 12px; font-weight: 600; }
+        .cookie-input { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .cookie-input input { flex: 3; min-width: 200px; padding: 12px 16px; border-radius: 14px; border: 1px solid #314159; background: #0f141e; color: #d6e0f0; font-size: 13px; font-family: monospace; }
+        .cookie-input input:focus { border-color: #f0b34b; }
+        .cookie-input button { padding: 12px 24px; border-radius: 40px; border: none; background: #f0b34b; color: #0b0e14; font-weight: 700; cursor: pointer; }
+        .cookie-input button:hover { background: #ffc86b; }
+        textarea { width: 100%; padding: 14px; border-radius: 14px; border: 1px solid #314159; background: #0f141e; color: #d6e0f0; font-size: 15px; min-height: 100px; font-family: 'Courier New', monospace; resize: vertical; margin-top: 10px; }
+        .action-bar { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+        .action-bar button { padding: 12px 22px; border-radius: 40px; border: none; background: #2a3345; color: #d6e0f0; font-weight: 600; cursor: pointer; flex: 1 1 auto; transition: 0.15s; }
         .action-bar button:active { transform: scale(0.96); }
         .action-bar .primary { background: #f0b34b; color: #0b0e14; }
         .action-bar .primary:hover { background: #ffc86b; }
         .action-bar .dl-bulk { background: #4caf84; color: #0b0e14; }
         .action-bar .dl-bulk:hover { background: #5edb9f; }
         .action-bar .disabled { opacity: 0.4; pointer-events: none; }
-        #status {
-            background: #0f141e; border-radius: 16px; padding: 16px;
-            color: #b3c2d9; font-size: 14px; min-height: 70px;
-            border: 1px dashed #2f3a4b; font-family: monospace;
-            max-height: 180px; overflow-y: auto; line-height: 1.6;
-        }
+        #status { background: #0f141e; border-radius: 16px; padding: 16px; color: #b3c2d9; font-size: 14px; min-height: 70px; border: 1px dashed #2f3a4b; font-family: monospace; max-height: 180px; overflow-y: auto; line-height: 1.6; }
         .log-success { color: #8bdfb0; }
         .log-error { color: #f48b8b; }
         .log-info { color: #f0b34b; }
-        .footnote {
-            color: #5a6a80; font-size: 12px; text-align: center;
-            margin-top: 20px; border-top: 1px solid #1f2836; padding-top: 16px;
-        }
+        .footnote { color: #5a6a80; font-size: 12px; text-align: center; margin-top: 20px; border-top: 1px solid #1f2836; padding-top: 16px; }
         #progress { width: 100%; height: 6px; background: #1f2836; border-radius: 10px; margin: 12px 0; overflow: hidden; }
         #progressFill { height: 100%; width: 0%; background: #f0b34b; border-radius: 10px; transition: width 0.3s; }
+        #cookieStatus { font-size: 13px; padding: 6px 14px; border-radius: 40px; }
+        .cookie-ok { background: #1f3a2a; color: #8bdfb0; }
+        .cookie-missing { background: #3a1f1f; color: #f48b8b; }
+        .logout-btn { background: transparent; border: 1px solid #f48b8b; color: #f48b8b; padding: 4px 16px; border-radius: 40px; cursor: pointer; font-size: 13px; }
+        .logout-btn:hover { background: #f48b8b; color: #0b0e14; }
     </style>
 </head>
 <body>
 <div class="card">
-    <h1>📦 Bulk Spoofer <span style="color:#f0b34b;">OAuth 2.0</span></h1>
+    <h1>📦 Bulk Spoofer <span style="color:#f0b34b;">Cookie</span></h1>
     <div class="sub">
-        <span class="badge">🔐 LOGIN DULU</span>
-        <button id="loginBtn" class="login-btn">🔑 Login with Roblox</button>
+        <span class="badge">🔐 Cookie Session</span>
+        <span id="cookieStatus" class="cookie-missing">❌ Belum set cookie</span>
+        <button class="logout-btn" id="logoutBtn" style="display:none;">🚪 Logout</button>
+    </div>
+
+    <div class="cookie-input">
+        <input type="text" id="cookieInput" placeholder="Tempel .ROBLOSECURITY cookie di sini...">
+        <button id="setCookieBtn">💾 Set Cookie</button>
     </div>
 
     <textarea id="idList" placeholder="Paste ID, pisah koma / newline&#10;Contoh: 9124851790, 70988430076764">9124851790, 70988430076764</textarea>
@@ -123,20 +62,25 @@
     </div>
 
     <div id="progress"><div id="progressFill"></div></div>
-    <div id="status">⏳ Siap. Login dulu pake tombol di atas.</div>
-    <div class="footnote">OAuth 2.0 — token disimpan di session lo, gak pernah nyimpen password.</div>
+    <div id="status">⏳ Tempel cookie dari Roblox, lalu klik Set Cookie.</div>
+    <div class="footnote">
+        Cookie disimpan di session lo (1 jam). Gak pernah tersimpan di server permanen.
+    </div>
 </div>
 
 <script>
+    const cookieInput = document.getElementById('cookieInput');
+    const setCookieBtn = document.getElementById('setCookieBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const cookieStatus = document.getElementById('cookieStatus');
     const idList = document.getElementById('idList');
     const bulkZipBtn = document.getElementById('bulkZipBtn');
     const singleTestBtn = document.getElementById('singleTestBtn');
     const clearBtn = document.getElementById('clearBtn');
-    const loginBtn = document.getElementById('loginBtn');
     const statusDiv = document.getElementById('status');
     const progressFill = document.getElementById('progressFill');
 
-    let isLoggedIn = false;
+    let hasCookie = false;
 
     function log(msg, type = 'info') {
         const entry = document.createElement('div');
@@ -147,69 +91,83 @@
     }
 
     function clearLog() { statusDiv.innerHTML = ''; }
+    function parseIds(text) { return text.split(/[\s,;\n]+/).map(s=>s.trim()).filter(s=>/^\d+$/.test(s)); }
+    function updateProgress(pct) { progressFill.style.width = Math.min(pct,100)+'%'; }
 
-    function parseIds(text) {
-        return text.split(/[\s,;\n]+/).map(s => s.trim()).filter(s => /^\d+$/.test(s));
-    }
-
-    function updateProgress(pct) {
-        progressFill.style.width = Math.min(pct, 100) + '%';
-    }
-
-    function setButtonsEnabled(enabled) {
-        if (enabled && isLoggedIn) {
+    function updateUI() {
+        if (hasCookie) {
+            cookieStatus.textContent = '✅ Cookie aktif';
+            cookieStatus.className = 'cookie-ok';
+            logoutBtn.style.display = 'inline-block';
             bulkZipBtn.classList.remove('disabled');
             singleTestBtn.classList.remove('disabled');
         } else {
+            cookieStatus.textContent = '❌ Belum set cookie';
+            cookieStatus.className = 'cookie-missing';
+            logoutBtn.style.display = 'none';
             bulkZipBtn.classList.add('disabled');
             singleTestBtn.classList.add('disabled');
         }
     }
 
-    // === Cek status login ===
-    async function checkLoginStatus() {
-        try {
-            const res = await fetch('/auth/status');
-            const data = await res.json();
-            isLoggedIn = data.loggedIn;
-            if (isLoggedIn) {
-                loginBtn.textContent = '🚪 Logout';
-                loginBtn.className = 'login-btn logout';
-                log('✅ Login berhasil! Token aktif.', 'success');
-            } else {
-                loginBtn.textContent = '🔑 Login with Roblox';
-                loginBtn.className = 'login-btn';
-                log('⏳ Belum login. Klik tombol di atas.', 'info');
-            }
-            setButtonsEnabled(true);
-        } catch (e) {
-            log('❌ Gagal cek status login.', 'error');
+    // === Set Cookie ===
+    setCookieBtn.addEventListener('click', async () => {
+        const cookie = cookieInput.value.trim();
+        if (!cookie) {
+            log('⚠️ Masukkan cookie dulu.', 'error');
+            return;
         }
-    }
+        if (!cookie.startsWith('_|WARNING')) {
+            log('⚠️ Cookie harus diawali dengan _|WARNING... (copy dari DevTools)', 'error');
+            return;
+        }
 
-    // === Login / Logout ===
-    loginBtn.addEventListener('click', () => {
-        if (isLoggedIn) {
-            // Logout
-            window.location.href = '/auth/logout';
-        } else {
-            window.location.href = '/auth/login';
+        try {
+            const res = await fetch('/set-cookie', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cookie })
+            });
+            const data = await res.json();
+            if (data.success) {
+                hasCookie = true;
+                updateUI();
+                log('✅ Cookie berhasil disimpan di session.', 'success');
+                cookieInput.value = '';
+            } else {
+                log(`❌ Gagal: ${data.error}`, 'error');
+            }
+        } catch (e) {
+            log(`❌ Error: ${e.message}`, 'error');
         }
     });
 
+    // === Logout (hapus cookie dari session) ===
+    logoutBtn.addEventListener('click', () => {
+        window.location.href = '/logout';
+    });
+
+    // === Cek status cookie saat pertama load ===
+    async function checkStatus() {
+        try {
+            const res = await fetch('/status');
+            const data = await res.json();
+            hasCookie = data.hasCookie;
+            updateUI();
+            if (hasCookie) log('✅ Cookie sudah tersimpan di session.', 'success');
+            else log('⏳ Belum ada cookie. Tempel dan set.', 'info');
+        } catch (e) {
+            log('❌ Gagal cek status.', 'error');
+        }
+    }
+
     // === Bulk ZIP ===
     bulkZipBtn.addEventListener('click', async () => {
-        if (!isLoggedIn) {
-            log('⚠️ Login dulu pake tombol di atas!', 'error');
-            return;
-        }
+        if (!hasCookie) { log('⚠️ Set cookie dulu.', 'error'); return; }
         const ids = parseIds(idList.value);
-        if (ids.length === 0) {
-            log('⚠️ Gak ada ID valid.', 'error');
-            return;
-        }
+        if (ids.length === 0) { log('⚠️ Gak ada ID valid.', 'error'); return; }
         clearLog();
-        log(`🚀 Mengirim ${ids.length} ID ke server...`, 'info');
+        log(`🚀 Mengirim ${ids.length} ID...`, 'info');
         updateProgress(10);
 
         try {
@@ -218,12 +176,10 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ids })
             });
-
             if (!response.ok) {
                 const errText = await response.text();
                 throw new Error(`Server error: ${response.status} - ${errText}`);
             }
-
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -233,8 +189,7 @@
             a.click();
             a.remove();
             window.URL.revokeObjectURL(url);
-
-            log(`✅ ZIP berhasil di-download (${(blob.size / 1024).toFixed(1)} KB)`, 'success');
+            log(`✅ ZIP berhasil (${(blob.size/1024).toFixed(1)} KB)`, 'success');
             updateProgress(100);
         } catch (err) {
             log(`❌ Gagal: ${err.message}`, 'error');
@@ -244,15 +199,9 @@
 
     // === Test Single ID ===
     singleTestBtn.addEventListener('click', async () => {
-        if (!isLoggedIn) {
-            log('⚠️ Login dulu pake tombol di atas!', 'error');
-            return;
-        }
+        if (!hasCookie) { log('⚠️ Set cookie dulu.', 'error'); return; }
         const ids = parseIds(idList.value);
-        if (ids.length === 0) {
-            log('⚠️ Gak ada ID untuk di-test.', 'error');
-            return;
-        }
+        if (ids.length === 0) { log('⚠️ Gak ada ID.', 'error'); return; }
         const id = ids[0];
         clearLog();
         log(`🔍 Menguji ID ${id}...`, 'info');
@@ -264,7 +213,6 @@
                 const errText = await response.text();
                 throw new Error(`Server error: ${response.status} - ${errText}`);
             }
-
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -280,7 +228,6 @@
             a.click();
             a.remove();
             window.URL.revokeObjectURL(url);
-
             log(`✅ Download ID ${id} berhasil`, 'success');
             updateProgress(100);
         } catch (err) {
@@ -296,8 +243,10 @@
         updateProgress(0);
     });
 
-    // === Init ===
-    checkLoginStatus();
+    // Enter key on cookie input triggers set
+    cookieInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') setCookieBtn.click(); });
+
+    checkStatus();
 </script>
 </body>
 </html>
