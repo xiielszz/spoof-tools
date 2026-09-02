@@ -1,11 +1,14 @@
 {
-  "name": "bulk-spoofer-cookie",
-  "version": "3.0.0",
-  "scripts": { "start": "node index.js" },
+  "name": "audio-studio-railway",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser audio processor with smooth preview, gain control and long-file splitting.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
-    "express": "^4.18.2",
-    "axios": "^1.6.0",
-    "archiver": "^5.3.1",
-    "cookie-session": "^2.0.0"
+    "express": "^5.1.0",
+    "multer": "^2.0.2"
   }
 }
