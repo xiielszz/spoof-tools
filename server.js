@@ -155,7 +155,8 @@ app.get("/api/download/:token/:file", (req, res) => {
   });
 });
 
-app.get("*", (req, res) => {
+// Express 5 requires a named wildcard parameter.
+app.get("/{*splat}", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
