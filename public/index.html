@@ -36,6 +36,15 @@ button.secondary{border:1px solid #2b3547;background:#151b25;color:#e7ebf3;borde
 .parts{display:grid;gap:8px;margin-top:15px}
 .parts a{color:#e7edf9;text-decoration:none;border:1px solid #293448;padding:11px 13px;border-radius:11px;background:#101621}
 .note{font-size:12px;color:#7f8ba0;line-height:1.5;margin-top:12px}
+
+.progress-wrap{display:none;margin-top:14px;background:#0a0e15;border:1px solid #202736;border-radius:13px;padding:12px}
+.progress-wrap.show{display:block}
+.progress-head{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#aeb8ca;margin-bottom:8px}
+.progress-track{height:9px;background:#202838;border-radius:999px;overflow:hidden}
+.progress-bar{height:100%;width:0%;background:#f0f3f8;border-radius:999px;transition:width .18s ease}
+.progress-bar.indeterminate{width:38%;animation:progressMove 1.1s ease-in-out infinite}
+@keyframes progressMove{0%{transform:translateX(-120%)}100%{transform:translateX(290%)}}
+
 @media(max-width:700px){.grid{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}}
 </style>
 </head>
@@ -84,6 +93,10 @@ button.secondary{border:1px solid #2b3547;background:#151b25;color:#e7ebf3;borde
     <button id="reset" class="secondary">Reset 2.3x / -4 dB</button>
   </div>
   <div id="status1" class="status"></div>
+  <div id="progress1" class="progress-wrap">
+    <div class="progress-head"><span id="progressLabel1">Upload</span><strong id="progressPercent1">0%</strong></div>
+    <div class="progress-track"><div id="progressBar1" class="progress-bar"></div></div>
+  </div>
   <div class="note">Preview memakai playbackRate + gain. Export memakai FFmpeg <code>atempo</code> agar perubahan tempo tidak otomatis menaikkan pitch.</div>
 </section>
 
@@ -106,6 +119,10 @@ button.secondary{border:1px solid #2b3547;background:#151b25;color:#e7ebf3;borde
     <button id="split" class="primary">Split Audio</button>
   </div>
   <div id="status2" class="status"></div>
+  <div id="progress2" class="progress-wrap">
+    <div class="progress-head"><span id="progressLabel2">Upload</span><strong id="progressPercent2">0%</strong></div>
+    <div class="progress-track"><div id="progressBar2" class="progress-bar"></div></div>
+  </div>
   <div id="parts" class="parts"></div>
   <div class="note">Jika durasi total tidak habis dibagi rata, bagian terakhir bisa lebih pendek dari target. Itu diperlukan agar tidak menambahkan audio kosong.</div>
 </section>
@@ -144,36 +161,110 @@ $("#gain").addEventListener("input",updatePreview);
 $("#reset").onclick=()=>{$("#speed").value=2.3;$("#gain").value=-4;updatePreview()};
 updatePreview();
 
+function uploadWithProgress(url, formData, progressWrap, bar, label, percent) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", url);
+    xhr.responseType = "blob";
+
+    xhr.upload.onprogress = e => {
+      if (!e.lengthComputable) return;
+      const p = Math.round((e.loaded / e.total) * 100);
+      progressWrap.classList.add("show");
+      bar.classList.remove("indeterminate");
+      bar.style.width = p + "%";
+      percent.textContent = p + "%";
+      label.textContent = "Uploading audio...";
+    };
+
+    xhr.upload.onload = () => {
+      label.textContent = "Server sedang memproses...";
+      percent.textContent = "•••";
+      bar.classList.add("indeterminate");
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) resolve(xhr.response);
+      else {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try { reject(new Error(JSON.parse(reader.result).error || "Processing failed")); }
+          catch { reject(new Error("Processing failed")); }
+        };
+        reader.readAsText(xhr.response);
+      }
+    };
+    xhr.onerror = () => reject(new Error("Network error."));
+    xhr.onabort = () => reject(new Error("Upload cancelled."));
+    xhr.send(formData);
+  });
+}
+
 $("#process").onclick=async()=>{
   if(!audioFile1) return $("#status1").textContent="Pilih file audio dulu.";
-  const fd=new FormData(); fd.append("audio",audioFile1); fd.append("speed",$("#speed").value); fd.append("gainDb",$("#gain").value);
-  $("#status1").textContent="Processing...";
+  const fd=new FormData();
+  fd.append("audio",audioFile1);
+  fd.append("speed",$("#speed").value);
+  fd.append("gainDb",$("#gain").value);
+
+  const wrap=$("#progress1"), bar=$("#progressBar1"), label=$("#progressLabel1"), percent=$("#progressPercent1");
+  wrap.classList.add("show");
+  bar.classList.remove("indeterminate");
+  bar.style.width="0%";
+  percent.textContent="0%";
+  label.textContent="Preparing upload...";
+  $("#status1").textContent=`Mengupload ${audioFile1.name}...`;
+
   try{
-    const r=await fetch("/api/process",{method:"POST",body:fd});
-    if(!r.ok) throw new Error((await r.json()).error||"Processing failed");
-    const blob=await r.blob();
+    const blob=await uploadWithProgress("/api/process",fd,wrap,bar,label,percent);
+    bar.classList.remove("indeterminate");
+    bar.style.width="100%";
+    percent.textContent="100%";
+    label.textContent="Done";
     const url=URL.createObjectURL(blob);
     const a=document.createElement("a"); a.href=url; a.download="processed-audio.mp3"; a.click();
-    $("#status1").textContent="Selesai. File sudah dikirim ke download browser.";
-  }catch(e){$("#status1").textContent=e.message}
+    $("#status1").textContent="Selesai. File hasil sudah dikirim ke download browser.";
+  }catch(e){
+    bar.classList.remove("indeterminate");
+    bar.style.width="0%";
+    percent.textContent="0%";
+    label.textContent="Error";
+    $("#status1").textContent=e.message;
+  }
 };
 
 $("#chunk").addEventListener("input",()=>$("#chunkVal").textContent=$("#chunk").value+" min");
 $("#split").onclick=async()=>{
   if(!audioFile2) return $("#status2").textContent="Pilih file audio dulu.";
   const fd=new FormData(); fd.append("audio",audioFile2); fd.append("chunkMinutes",$("#chunk").value);
-  $("#status2").textContent="Splitting...";
+  const wrap=$("#progress2"), bar=$("#progressBar2"), label=$("#progressLabel2"), percent=$("#progressPercent2");
+  wrap.classList.add("show");
+  bar.classList.remove("indeterminate");
+  bar.style.width="0%";
+  percent.textContent="0%";
+  label.textContent="Preparing upload...";
+  $("#status2").textContent=`Mengupload ${audioFile2.name}...`;
   $("#parts").innerHTML="";
   try{
-    const r=await fetch("/api/split",{method:"POST",body:fd});
-    const data=await r.json();
-    if(!r.ok) throw new Error(data.error||"Split failed");
+    const blob=await uploadWithProgress("/api/split",fd,wrap,bar,label,percent);
+    // Split endpoint returns JSON, while the generic XHR uses blob response.
+    const data=JSON.parse(await blob.text());
+    bar.classList.remove("indeterminate");
+    bar.style.width="100%";
+    percent.textContent="100%";
+    label.textContent="Done";
     $("#status2").textContent=`Selesai: ${data.count} bagian.`;
     data.parts.forEach((u,i)=>{
       const a=document.createElement("a"); a.href=u; a.download=`part-${String(i+1).padStart(3,"0")}.mp3`; a.textContent=`Download Part ${i+1}`;
       $("#parts").appendChild(a);
     });
-  }catch(e){$("#status2").textContent=e.message}
+  }catch(e){
+    bar.classList.remove("indeterminate");
+    bar.style.width="0%";
+    percent.textContent="0%";
+    label.textContent="Error";
+    $("#status2").textContent=e.message;
+  }
 };
 </script>
 </body>
