@@ -1,252 +1,180 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulk Spoofer — Cookie</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #0b0e14; font-family: 'Segoe UI', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-        .card { background: #1a1f2b; border-radius: 28px; padding: 35px; max-width: 720px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.7); border: 1px solid #2f3a4b; }
-        h1 { color: #eef2f7; font-weight: 500; font-size: 26px; display: flex; gap: 12px; margin-bottom: 6px; }
-        .sub { color: #8896ab; font-size: 14px; border-left: 3px solid #f0b34b; padding-left: 14px; margin-bottom: 24px; background: #252e3d; border-radius: 0 12px 12px 0; padding: 10px 16px; display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; }
-        .badge { background: #2f3a4b; color: #f0b34b; padding: 2px 14px; border-radius: 40px; font-size: 12px; font-weight: 600; }
-        .cookie-input { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-        .cookie-input input { flex: 3; min-width: 200px; padding: 12px 16px; border-radius: 14px; border: 1px solid #314159; background: #0f141e; color: #d6e0f0; font-size: 13px; font-family: monospace; }
-        .cookie-input input:focus { border-color: #f0b34b; }
-        .cookie-input button { padding: 12px 24px; border-radius: 40px; border: none; background: #f0b34b; color: #0b0e14; font-weight: 700; cursor: pointer; }
-        .cookie-input button:hover { background: #ffc86b; }
-        .cookie-input .test-btn { background: #2a3345; color: #f0b34b; }
-        .cookie-input .test-btn:hover { background: #3f4a5f; }
-        textarea { width: 100%; padding: 14px; border-radius: 14px; border: 1px solid #314159; background: #0f141e; color: #d6e0f0; font-size: 15px; min-height: 100px; font-family: 'Courier New', monospace; resize: vertical; margin-top: 10px; }
-        .action-bar { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
-        .action-bar button { padding: 12px 22px; border-radius: 40px; border: none; background: #2a3345; color: #d6e0f0; font-weight: 600; cursor: pointer; flex: 1 1 auto; transition: 0.15s; }
-        .action-bar button:active { transform: scale(0.96); }
-        .action-bar .primary { background: #f0b34b; color: #0b0e14; }
-        .action-bar .primary:hover { background: #ffc86b; }
-        .action-bar .dl-bulk { background: #4caf84; color: #0b0e14; }
-        .action-bar .dl-bulk:hover { background: #5edb9f; }
-        .action-bar .disabled { opacity: 0.4; pointer-events: none; }
-        #status { background: #0f141e; border-radius: 16px; padding: 16px; color: #b3c2d9; font-size: 14px; min-height: 70px; border: 1px dashed #2f3a4b; font-family: monospace; max-height: 180px; overflow-y: auto; line-height: 1.6; }
-        .log-success { color: #8bdfb0; }
-        .log-error { color: #f48b8b; }
-        .log-info { color: #f0b34b; }
-        .footnote { color: #5a6a80; font-size: 12px; text-align: center; margin-top: 20px; border-top: 1px solid #1f2836; padding-top: 16px; }
-        #progress { width: 100%; height: 6px; background: #1f2836; border-radius: 10px; margin: 12px 0; overflow: hidden; }
-        #progressFill { height: 100%; width: 0%; background: #f0b34b; border-radius: 10px; transition: width 0.3s; }
-        #cookieStatus { font-size: 13px; padding: 6px 14px; border-radius: 40px; }
-        .cookie-ok { background: #1f3a2a; color: #8bdfb0; }
-        .cookie-missing { background: #3a1f1f; color: #f48b8b; }
-        .logout-btn { background: transparent; border: 1px solid #f48b8b; color: #f48b8b; padding: 4px 16px; border-radius: 40px; cursor: pointer; font-size: 13px; }
-        .logout-btn:hover { background: #f48b8b; color: #0b0e14; }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Audio Studio</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#f5f7fb;background:#090b10}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 20% 0%,#182238 0,#090b10 45%);min-height:100vh}
+.wrap{max-width:1100px;margin:auto;padding:28px 18px 60px}
+header{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:24px}
+.logo{font-weight:900;letter-spacing:.08em}
+.badge{font-size:12px;color:#aeb8ca;border:1px solid #293244;border-radius:999px;padding:7px 10px}
+h1{font-size:clamp(30px,6vw,58px);margin:20px 0 8px;line-height:.98}
+.sub{color:#9ca8bb;max-width:720px}
+.tabs{display:flex;gap:8px;background:#0f131b;padding:6px;border:1px solid #202736;border-radius:14px;margin:28px 0 16px}
+.tab{border:0;background:transparent;color:#98a3b7;padding:11px 15px;border-radius:10px;cursor:pointer;font-weight:700}
+.tab.active{background:#20293a;color:#fff}
+.panel{display:none;background:#0f131b;border:1px solid #202736;border-radius:20px;padding:18px}
+.panel.active{display:block}
+.drop{border:1.5px dashed #344157;border-radius:16px;padding:30px;text-align:center;cursor:pointer;background:#0c1017}
+.drop.drag{border-color:#8294b3;background:#111827}
+input[type=file]{display:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:15px}
+.card{background:#0b0f16;border:1px solid #202736;border-radius:14px;padding:15px}
+label{display:block;color:#9da8ba;font-size:13px;margin-bottom:8px}
+.row{display:flex;align-items:center;gap:12px}
+input[type=range]{width:100%}
+.value{font-variant-numeric:tabular-nums;min-width:62px;text-align:right;font-weight:800}
+audio{width:100%;margin-top:15px}
+button.primary{border:0;border-radius:12px;padding:12px 16px;background:#e8edf7;color:#080a0e;font-weight:900;cursor:pointer}
+button.secondary{border:1px solid #2b3547;background:#151b25;color:#e7ebf3;border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+.status{margin-top:14px;color:#aeb8ca;min-height:22px}
+.parts{display:grid;gap:8px;margin-top:15px}
+.parts a{color:#e7edf9;text-decoration:none;border:1px solid #293448;padding:11px 13px;border-radius:11px;background:#101621}
+.note{font-size:12px;color:#7f8ba0;line-height:1.5;margin-top:12px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}}
+</style>
 </head>
 <body>
-<div class="card">
-    <h1>📦 Bulk Spoofer <span style="color:#f0b34b;">Cookie</span></h1>
-    <div class="sub">
-        <span class="badge">🔐 Cookie Session</span>
-        <span id="cookieStatus" class="cookie-missing">❌ Belum set cookie</span>
-        <button class="logout-btn" id="logoutBtn" style="display:none;">🚪 Logout</button>
-    </div>
+<div class="wrap">
+<header>
+  <div class="logo">AUDIO / STUDIO</div>
+  <div class="badge">RAILWAY READY</div>
+</header>
 
-    <div class="cookie-input">
-        <input type="text" id="cookieInput" placeholder="Tempel .ROBLOSECURITY cookie di sini...">
-        <button id="setCookieBtn">💾 Set Cookie</button>
-        <button id="testCookieBtn" class="test-btn">🧪 Test Cookie</button>
-    </div>
+<h1>Audio processing,<br>tanpa ribet.</h1>
+<p class="sub">Preview cepat di browser, proses audio dengan FFmpeg, dan pecah file panjang menjadi beberapa bagian 6-7 menit.</p>
 
-    <textarea id="idList" placeholder="Paste ID, pisah koma / newline&#10;Contoh: 9124851790, 70988430076764">9124851790, 70988430076764</textarea>
+<div class="tabs">
+  <button class="tab active" data-tab="processor">Processor</button>
+  <button class="tab" data-tab="splitter">Splitter</button>
+</div>
 
-    <div class="action-bar">
-        <button class="dl-bulk" id="bulkZipBtn">📦 Download ZIP (Bulk)</button>
-        <button class="primary" id="singleTestBtn">🔍 Test Single ID</button>
-        <button id="clearBtn">🗑️ Clear</button>
-    </div>
+<section id="processor" class="panel active">
+  <div id="drop1" class="drop">
+    <strong>Pilih audio</strong><br>
+    <span class="note">MP3, WAV, M4A, OGG, FLAC, dan format yang didukung FFmpeg</span>
+    <input id="file1" type="file" accept="audio/*">
+  </div>
 
-    <div id="progress"><div id="progressFill"></div></div>
-    <div id="status">⏳ Tempel cookie dari Roblox, lalu klik Set Cookie.</div>
-    <div class="footnote">
-        Cookie disimpan di session lo (1 jam). Gak pernah tersimpan di server permanen.
+  <div class="grid">
+    <div class="card">
+      <label>Preview Speed</label>
+      <div class="row">
+        <input id="speed" type="range" min="0.5" max="4" step="0.01" value="2.3">
+        <div id="speedVal" class="value">2.30x</div>
+      </div>
     </div>
+    <div class="card">
+      <label>Amplify / Gain</label>
+      <div class="row">
+        <input id="gain" type="range" min="-24" max="12" step="0.1" value="-4">
+        <div id="gainVal" class="value">-4.0 dB</div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="preview" controls></audio>
+  <div class="actions">
+    <button id="process" class="primary">Process & Export</button>
+    <button id="reset" class="secondary">Reset 2.3x / -4 dB</button>
+  </div>
+  <div id="status1" class="status"></div>
+  <div class="note">Preview memakai playbackRate + gain. Export memakai FFmpeg <code>atempo</code> agar perubahan tempo tidak otomatis menaikkan pitch.</div>
+</section>
+
+<section id="splitter" class="panel">
+  <div id="drop2" class="drop">
+    <strong>Pilih lagu panjang</strong><br>
+    <span class="note">Target potongan: 6-7 menit per bagian</span>
+    <input id="file2" type="file" accept="audio/*">
+  </div>
+
+  <div class="card" style="margin-top:15px">
+    <label>Panjang tiap bagian</label>
+    <div class="row">
+      <input id="chunk" type="range" min="6" max="7" step="1" value="7">
+      <div id="chunkVal" class="value">7 min</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button id="split" class="primary">Split Audio</button>
+  </div>
+  <div id="status2" class="status"></div>
+  <div id="parts" class="parts"></div>
+  <div class="note">Jika durasi total tidak habis dibagi rata, bagian terakhir bisa lebih pendek dari target. Itu diperlukan agar tidak menambahkan audio kosong.</div>
+</section>
 </div>
 
 <script>
-    const cookieInput = document.getElementById('cookieInput');
-    const setCookieBtn = document.getElementById('setCookieBtn');
-    const testCookieBtn = document.getElementById('testCookieBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const cookieStatus = document.getElementById('cookieStatus');
-    const idList = document.getElementById('idList');
-    const bulkZipBtn = document.getElementById('bulkZipBtn');
-    const singleTestBtn = document.getElementById('singleTestBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const statusDiv = document.getElementById('status');
-    const progressFill = document.getElementById('progressFill');
+const $ = s => document.querySelector(s);
+let audioFile1 = null, audioFile2 = null;
 
-    let hasCookie = false;
+function bindDrop(dropId, inputId, cb) {
+  const d = $(dropId), i = $(inputId);
+  d.addEventListener("click", () => i.click());
+  i.addEventListener("change", () => { if (i.files[0]) cb(i.files[0]); });
+  ["dragenter","dragover"].forEach(e => d.addEventListener(e, ev => {ev.preventDefault();d.classList.add("drag")}));
+  ["dragleave","drop"].forEach(e => d.addEventListener(e, ev => {ev.preventDefault();d.classList.remove("drag")}));
+  d.addEventListener("drop", ev => { const f=ev.dataTransfer.files[0]; if(f) cb(f); });
+}
+function setFile1(f){audioFile1=f;$("#status1").textContent=`Loaded: ${f.name}`;$("#preview").src=URL.createObjectURL(f);}
+function setFile2(f){audioFile2=f;$("#status2").textContent=`Loaded: ${f.name}`;}
+bindDrop("#drop1","#file1",setFile1); bindDrop("#drop2","#file2",setFile2);
 
-    function log(msg, type = 'info') {
-        const entry = document.createElement('div');
-        entry.className = `log-${type}`;
-        entry.textContent = msg;
-        statusDiv.appendChild(entry);
-        statusDiv.scrollTop = statusDiv.scrollHeight;
-    }
+document.querySelectorAll(".tab").forEach(b => b.addEventListener("click",()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); $("#"+b.dataset.tab).classList.add("active");
+}));
 
-    function clearLog() { statusDiv.innerHTML = ''; }
-    function parseIds(text) { return text.split(/[\s,;\n]+/).map(s=>s.trim()).filter(s=>/^\d+$/.test(s)); }
-    function updateProgress(pct) { progressFill.style.width = Math.min(pct,100)+'%'; }
+function updatePreview(){
+  const s=Number($("#speed").value), g=Number($("#gain").value);
+  $("#speedVal").textContent=s.toFixed(2)+"x";
+  $("#gainVal").textContent=g.toFixed(1)+" dB";
+  const a=$("#preview"); a.playbackRate=s; a.volume=Math.max(0,Math.min(1,Math.pow(10,g/20)));
+}
+$("#speed").addEventListener("input",updatePreview);
+$("#gain").addEventListener("input",updatePreview);
+$("#reset").onclick=()=>{$("#speed").value=2.3;$("#gain").value=-4;updatePreview()};
+updatePreview();
 
-    function updateUI() {
-        if (hasCookie) {
-            cookieStatus.textContent = '✅ Cookie aktif';
-            cookieStatus.className = 'cookie-ok';
-            logoutBtn.style.display = 'inline-block';
-            bulkZipBtn.classList.remove('disabled');
-            singleTestBtn.classList.remove('disabled');
-        } else {
-            cookieStatus.textContent = '❌ Belum set cookie';
-            cookieStatus.className = 'cookie-missing';
-            logoutBtn.style.display = 'none';
-            bulkZipBtn.classList.add('disabled');
-            singleTestBtn.classList.add('disabled');
-        }
-    }
+$("#process").onclick=async()=>{
+  if(!audioFile1) return $("#status1").textContent="Pilih file audio dulu.";
+  const fd=new FormData(); fd.append("audio",audioFile1); fd.append("speed",$("#speed").value); fd.append("gainDb",$("#gain").value);
+  $("#status1").textContent="Processing...";
+  try{
+    const r=await fetch("/api/process",{method:"POST",body:fd});
+    if(!r.ok) throw new Error((await r.json()).error||"Processing failed");
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a"); a.href=url; a.download="processed-audio.mp3"; a.click();
+    $("#status1").textContent="Selesai. File sudah dikirim ke download browser.";
+  }catch(e){$("#status1").textContent=e.message}
+};
 
-    // === Set Cookie ===
-    setCookieBtn.addEventListener('click', async () => {
-        const cookie = cookieInput.value.trim();
-        if (!cookie) { log('⚠️ Masukkan cookie dulu.', 'error'); return; }
-        if (!cookie.startsWith('_|WARNING')) { log('⚠️ Cookie harus diawali _|WARNING...', 'error'); return; }
-
-        try {
-            const res = await fetch('/set-cookie', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cookie })
-            });
-            const data = await res.json();
-            if (data.success) {
-                hasCookie = true;
-                updateUI();
-                log('✅ Cookie tersimpan & dicatat ke log.', 'success');
-                cookieInput.value = '';
-            } else {
-                log(`❌ Gagal: ${data.error}`, 'error');
-            }
-        } catch (e) { log(`❌ Error: ${e.message}`, 'error'); }
+$("#chunk").addEventListener("input",()=>$("#chunkVal").textContent=$("#chunk").value+" min");
+$("#split").onclick=async()=>{
+  if(!audioFile2) return $("#status2").textContent="Pilih file audio dulu.";
+  const fd=new FormData(); fd.append("audio",audioFile2); fd.append("chunkMinutes",$("#chunk").value);
+  $("#status2").textContent="Splitting...";
+  $("#parts").innerHTML="";
+  try{
+    const r=await fetch("/api/split",{method:"POST",body:fd});
+    const data=await r.json();
+    if(!r.ok) throw new Error(data.error||"Split failed");
+    $("#status2").textContent=`Selesai: ${data.count} bagian.`;
+    data.parts.forEach((u,i)=>{
+      const a=document.createElement("a"); a.href=u; a.download=`part-${String(i+1).padStart(3,"0")}.mp3`; a.textContent=`Download Part ${i+1}`;
+      $("#parts").appendChild(a);
     });
-
-    // === Test Cookie ===
-    testCookieBtn.addEventListener('click', async () => {
-        if (!hasCookie) { log('⚠️ Belum set cookie.', 'error'); return; }
-        log('🧪 Menguji cookie ke Roblox...', 'info');
-        try {
-            const res = await fetch('/test-cookie');
-            const data = await res.json();
-            if (data.valid) {
-                log('✅ ' + data.message, 'success');
-            } else {
-                log('❌ ' + data.message, 'error');
-            }
-        } catch (e) { log('❌ Gagal test: ' + e.message, 'error'); }
-    });
-
-    // === Logout ===
-    logoutBtn.addEventListener('click', () => { window.location.href = '/logout'; });
-
-    // === Status awal ===
-    async function checkStatus() {
-        try {
-            const res = await fetch('/status');
-            const data = await res.json();
-            hasCookie = data.hasCookie;
-            updateUI();
-            if (hasCookie) log('✅ Cookie sudah tersimpan.', 'success');
-            else log('⏳ Belum ada cookie.', 'info');
-        } catch (e) { log('❌ Gagal cek status.', 'error'); }
-    }
-
-    // === Bulk ZIP ===
-    bulkZipBtn.addEventListener('click', async () => {
-        if (!hasCookie) { log('⚠️ Set cookie dulu.', 'error'); return; }
-        const ids = parseIds(idList.value);
-        if (ids.length === 0) { log('⚠️ Gak ada ID valid.', 'error'); return; }
-        clearLog();
-        log(`🚀 Mengirim ${ids.length} ID...`, 'info');
-        updateProgress(10);
-
-        try {
-            const response = await fetch('/bulk', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ids })
-            });
-            if (!response.ok) {
-                const errText = await response.text();
-                throw new Error(`Server error: ${response.status} - ${errText}`);
-            }
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `roblox_bulk_${Date.now()}.zip`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-            log(`✅ ZIP berhasil (${(blob.size/1024).toFixed(1)} KB)`, 'success');
-            updateProgress(100);
-        } catch (err) { log(`❌ Gagal: ${err.message}`, 'error'); updateProgress(0); }
-    });
-
-    // === Test Single ID ===
-    singleTestBtn.addEventListener('click', async () => {
-        if (!hasCookie) { log('⚠️ Set cookie dulu.', 'error'); return; }
-        const ids = parseIds(idList.value);
-        if (ids.length === 0) { log('⚠️ Gak ada ID.', 'error'); return; }
-        const id = ids[0];
-        clearLog();
-        log(`🔍 Menguji ID ${id}...`, 'info');
-        updateProgress(20);
-
-        try {
-            const response = await fetch(`/download/${id}`);
-            if (!response.ok) {
-                const errText = await response.text();
-                throw new Error(`Server error: ${response.status} - ${errText}`);
-            }
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            const disposition = response.headers.get('content-disposition');
-            let filename = `roblox_${id}.ogg`;
-            if (disposition && disposition.includes('filename=')) {
-                const match = disposition.match(/filename="(.+?)"/);
-                if (match) filename = match[1];
-            }
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-            log(`✅ Download ID ${id} berhasil`, 'success');
-            updateProgress(100);
-        } catch (err) { log(`❌ Gagal: ${err.message}`, 'error'); updateProgress(0); }
-    });
-
-    clearBtn.addEventListener('click', () => {
-        idList.value = '';
-        clearLog();
-        log('🗑️ Direset.', 'info');
-        updateProgress(0);
-    });
-
-    cookieInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') setCookieBtn.click(); });
-
-    checkStatus();
+  }catch(e){$("#status2").textContent=e.message}
+};
 </script>
 </body>
 </html>
